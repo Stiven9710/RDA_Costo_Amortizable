@@ -1,171 +1,325 @@
 # RDA Costo Amortizable - Automatización RPA
 
-![Estado](https://img.shields.io/badge/Estado-Documentación%20Completa-success)
-![Progreso](https://img.shields.io/badge/Historias%20de%20Usuario-21%2F21-brightgreen)
-![Estimación](https://img.shields.io/badge/Estimación-165.5h-blue)
-![Reducción](https://img.shields.io/badge/Reducción%20Tiempo-83%25-orange)
+![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow)
+![Progreso](https://img.shields.io/badge/Historias%20de%20Usuario-14%2F14-brightgreen)
+![Reducción](https://img.shields.io/badge/Reducción%20Tiempo-95%25-orange)
+![Frecuencia](https://img.shields.io/badge/Frecuencia-Mensual-blue)
 
-Este repositorio contiene el proyecto de automatización para el proceso **RDA (Robotic Desktop Automation) de Costo Amortizable** del Banco Caja Social. El objetivo principal es automatizar el cálculo, análisis y reporte del costo amortizable, reduciendo el tiempo de ejecución de **14 horas manuales a 2-3 horas automatizadas** (83% de reducción).
+## 📋 Resumen Ejecutivo
 
-## 📋 Descripción del Proyecto
+### ¿Qué es el Costo Amortizable?
 
-### Contexto del Negocio
-El proceso de **Costo Amortizable** es una actividad mensual crítica del área de Riesgos que permite calcular las pérdidas o ganancias derivadas de modificaciones en las condiciones crediticias de los préstamos (reestructuraciones, modificaciones y retenciones). Actualmente ejecutado manualmente por **Carol Patricia Campos González**, el proceso involucra:
+El **Costo Amortizable** es un proceso mensual crítico de la **Coordinación de Portafolio** del Banco Caja Social que permite hacer seguimiento y cálculo del impacto financiero de las modificaciones en las condiciones crediticias originales de los préstamos. 
 
-- Extracción de datos desde SQL Server (DWH y SCC)
-- Consolidación y transformación de datos en Excel
-- Validaciones de completitud de información
-- Cálculos financieros complejos (valor presente, tasas ponderadas)
-- Ejecución de macros VBA para tablas de amortización
-- Generación y distribución de reportes
+**Objetivo del proceso:** Calcular y amortizar las pérdidas o ganancias generadas por:
+- **Reestructuraciones de créditos**: Cambios en condiciones originales por acuerdos con clientes
+- **Modificaciones de condiciones**: Ajustes en tasas, plazos o estructura de pago
+- **Retenciones de vivienda**: Disminución de tasas de interés por programas de retención
+- **Amortizaciones especiales**: Acuerdos comerciales personalizados
 
-### Beneficios de la Automatización
-- ⏱️ **Reducción de 83% en tiempo de ejecución** (14h → 2-3h)
-- ✅ **Minimización de errores manuales** en cálculos críticos
-- 📊 **Trazabilidad completa** de cada ejecución
-- 🔄 **Proceso repetible y auditable**
-- 💰 **ROI positivo** desde el primer mes de implementación
+### El Problema
+
+**Situación actual (AS-IS):**
+- ⏱️ **Tiempo de ejecución:** 14 horas manuales (2 días al final de cada mes)
+- 👤 **Recurso:** 1 ETC (Carol Patricia Campos González)
+- 🔄 **Proceso:** 100% manual con múltiples herramientas (SQL Server, Excel, macros VBA)
+- ⚠️ **Riesgos:** Alto potencial de error humano en cálculos financieros críticos
+- 📊 **Volumen:** 1,000-1,500 registros procesados mensualmente
+
+### La Solución
+
+**Automatización RPA (TO-BE):**
+- ⚡ **Tiempo automatizado:** 15 minutos (PAD) u 8 minutos (n8n)
+- 📉 **Reducción:** 95% del tiempo de ejecución (14h → 15 min)
+- 🤖 **Tecnología:** Power Automate Desktop (PAD) o n8n
+- ✅ **Beneficios:** Ejecución desatendida, cero errores, trazabilidad completa
+- 🎯 **ROI:** Positivo desde el primer mes
+
+### Alcance del Proceso
+
+El proceso automatizado ejecuta **14 historias de usuario funcionales** que cubren:
+
+1. **Extracción de datos** desde SQL Server (DWH y SCC)
+2. **Consolidación** de información en Excel (reestructurados, modificados, retenidos)
+3. **Validación y completitud** de información mediante Linked Server
+4. **Cálculos financieros** (tasas ponderadas, valor presente, pérdidas/ganancias)
+5. **Ejecución de macros VBA** para tablas de amortización
+6. **Generación de archivo final** en formato estándar
+7. **Cargue a bases de datos** para el provisionador
+8. **Notificaciones automáticas** del resultado
+
+### Actores Clave
+
+| Rol | Responsable | Contacto |
+|-----|-------------|----------|
+| **Dueño del Proceso** | Carol Patricia Campos González | ccamposg@fgs.co |
+| **Especialista RPA** | Jeimy Johana Lozano Garnica | jelozanog@fgs.co |
+| **Desarrollador** | Ronald Estiven Rios Hernandez | rriosh@fgs.co |
+
+### Infraestructura
+
+**Servidores SQL:**
+- `10.1.3.101\SCC` → Base de datos DWH_CC (principal)
+- `10.1.5.172\RIESGOS` → Base de datos DWH_Riesgos_Credito (complementaria)
+
+**Aplicaciones:**
+- Power Automate Desktop o n8n (orquestador RPA)
+- Microsoft Excel 2016+ (con macros VBA)
+- SQL Server Management Studio (opcional, desarrollo)
+
+---
+
+## 🎯 Objetivos de la Automatización
+
+- ✅ Optimizar la ocupación manual en tareas repetitivas
+- ✅ Reducir tiempos de respuesta para mayor eficiencia
+- ✅ Eliminar el riesgo de error por factores humanos
+- ✅ Garantizar trazabilidad y auditoría completa del proceso
+- ✅ Liberar tiempo del talento humano para actividades de mayor valor
 
 ## 🗂️ Estructura del Repositorio
 
 ```
 RDA_Costo_Amortizable/
 │
-├── workflows/                      # Flujos de automatización
-│   ├── power-automate/            # Flujos de Power Automate Desktop
-│   │   ├── flujos/               # Flujos principales
-│   │   └── subprocesos/          # Subflujos y procesos auxiliares
-│   └── n8n/                      # Flujos de n8n
-│       ├── workflows/            # Workflows en formato JSON
-│       └── nodes/                # Nodos personalizados
+├── workflows/                      # Flujos de automatización (TO-BE)
+│   ├── power-automate/            # Power Automate Desktop (Opción 1)
+│   └── n8n/                       # n8n Cloud-Ready (Opción 2)
 │
-├── config/                        # Archivos de configuración
-│   ├── credenciales/             # Credenciales y variables de entorno
-│   ├── parametros/               # Parámetros de configuración
-│   └── conexiones/               # Configuración de conexiones y endpoints
+├── scripts/                       # Scripts SQL y auxiliares
+│   ├── sql/                      # Queries del proceso (01-06)
+│   ├── python/                   # Scripts Python complementarios
+│   └── powershell/               # Scripts PowerShell
+│
+├── config/                        # Configuración del proceso
+│   ├── credenciales/             # Variables de entorno y credenciales
+│   ├── parametros/               # Parámetros operativos
+│   └── conexiones/               # Endpoints y conexiones SQL
 │
 ├── data/                          # Datos del proceso
-│   ├── input/                    # Datos de entrada
-│   │   └── plantillas/          # Plantillas para procesar
-│   ├── output/                   # Datos de salida
-│   │   ├── reportes/            # Reportes generados
+│   ├── input/plantillas/         # Plantillas Excel base
+│   ├── output/                   # Salidas generadas
+│   │   ├── reportes/            # Archivos finales (.xls)
 │   │   └── logs/                # Logs de procesamiento
 │   └── temp/                     # Archivos temporales
 │
-├── scripts/                       # Scripts auxiliares
-│   ├── python/                   # Scripts en Python
-│   └── powershell/               # Scripts en PowerShell
-│
-├── documentacion/                 # Documentación del proyecto
-│   ├── funcional/                # Documentación funcional
-│   │   ├── insumos/             # Insumos del negocio
-│   │   │   ├── formularios/     # Formularios y formatos
-│   │   │   ├── plantillas/      # Plantillas de documentos
-│   │   │   └── referencias/     # Material de referencia
-│   │   ├── pdd/                 # Process Design Documents
-│   │   │   ├── anexos/          # Anexos del PDD
-│   │   │   └── versiones_anteriores/  # Versiones históricas
-│   │   ├── historias_usuario/   # Historias de usuario
-│   │   │   ├── backlog/         # Historias pendientes
-│   │   │   ├── en_progreso/     # Historias en desarrollo
-│   │   │   └── completadas/     # Historias finalizadas
-│   │   ├── casos_uso/           # Casos de uso
-│   │   └── requerimientos/      # Requerimientos del proyecto
-│   │       ├── funcionales/     # Requerimientos funcionales
-│   │       └── no_funcionales/  # Requerimientos no funcionales
+├── documentacion/                 # Documentación completa
+│   ├── funcional/                # Documentación de negocio
+│   │   ├── pdd/                 # PDD v1.0 (89 páginas)
+│   │   ├── historias_usuario/   # 14 HU funcionales
+│   │   └── insumos/             # Plantillas y referencias
 │   ├── tecnica/                  # Documentación técnica
-│   │   ├── manual_usuario/      # Manual de usuario
-│   │   ├── manual_tecnico/      # Manual técnico
-│   │   ├── diagramas/           # Diagramas técnicos
-│   │   └── api_docs/            # Documentación de APIs
+│   │   ├── diagramas/           # BPMN AS-IS y TO-BE
+│   │   ├── Requisitos_*.md      # Requisitos PAD y n8n
+│   │   └── Resumen_Funcional_n8n.md
 │   └── gestion_proyecto/        # Gestión del proyecto
-│       ├── actas_reunion/       # Actas de reuniones
-│       ├── cronograma/          # Cronograma y planificación
-│       └── seguimiento/         # Seguimiento y control
+│       └── cronograma/          # Planificación desarrollo
 │
-├── testing/                       # Pruebas
-│   ├── casos_prueba/             # Casos de prueba
-│   │   ├── funcionales/         # Pruebas funcionales
-│   │   └── tecnicos/            # Pruebas técnicas
-│   └── datos_prueba/             # Datos para testing
+├── testing/                       # Casos de prueba
+│   ├── casos_prueba/             # Tests funcionales/técnicos
+│   └── datos_prueba/             # Datos históricos validados
 │
 └── logs/                          # Logs de ejecución
-    ├── ejecuciones/              # Logs de ejecuciones exitosas
-    └── errores/                  # Logs de errores
+    ├── ejecuciones/              # Logs exitosos
+    └── errores/                  # Logs de fallos
 ```
+
+## � Flujo del Proceso
+
+### Vista de Alto Nivel (TO-BE Automatizado)
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                     INICIO: Programación Mensual                     │
+│              (Último día hábil del mes - 08:00 AM)                  │
+└────────────────────────────────┬────────────────────────────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │  1. EXTRACCIÓN DE DATOS  │
+                    │  • DWH Reestructurados   │
+                    │  • DWH Modificados       │
+                    │  • DWH Retenciones       │
+                    │  Tiempo: ~2 min          │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │ 2. CONSOLIDACIÓN EXCEL  │
+                    │  • Crear archivo base   │
+                    │  • Consolidar por tipo  │
+                    │  • Transformar fechas   │
+                    │  Tiempo: ~3 min         │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │ 3. ORGANIZACIÓN Y       │
+                    │    CLASIFICACIÓN        │
+                    │  • Consolidada/Individual│
+                    │  • Misma/Diferente Oblig│
+                    │  Tiempo: ~2 min         │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │ 4. CARGUE A SQL SERVER  │
+                    │  • Tablas temporales    │
+                    │  • Validación carga     │
+                    │  Tiempo: ~1 min         │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │ 5. VALIDACIÓN Y         │
+                    │    COMPLETITUD          │
+                    │  • Linked Server queries│
+                    │  • Completar info       │
+                    │  Tiempo: ~1 min         │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │ 6. RECOLECCIÓN TASAS/   │
+                    │    PLAZOS/SALDOS        │
+                    │  • Históricos por oblig │
+                    │  • Tasas ponderadas     │
+                    │  Tiempo: ~2 min         │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │ 7. CÁLCULO FINANCIERO   │
+                    │  • Valor presente (VP)  │
+                    │  • Pérdidas/Ganancias   │
+                    │  Tiempo: ~2 min         │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │ 8. MACRO AMORTIZACIÓN   │
+                    │  • Ejecutar VBA         │
+                    │  • Tablas de amortiz.   │
+                    │  Tiempo: ~1 min         │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │ 9. FORMATO FINAL        │
+                    │  • Consolidar BASE      │
+                    │  • Aplicar validaciones │
+                    │  • Generar .xls 97-2003 │
+                    │  Tiempo: ~1 min         │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │ 10. CARGUE FINAL Y      │
+                    │     NOTIFICACIONES      │
+                    │  • Subir a bd_costo_*   │
+                    │  • Enviar emails        │
+                    │  Tiempo: <1 min         │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │   FIN: Proceso Completo │
+                    │   Tiempo Total: 15 min  │
+                    │   Reducción: 95%        │
+                    └─────────────────────────┘
+```
+
+### Comparativa AS-IS vs TO-BE
+
+| Aspecto | AS-IS (Manual) | TO-BE (Automatizado) | Mejora |
+|---------|----------------|----------------------|--------|
+| **Tiempo total** | 14 horas | 15 minutos | 95% ⬇️ |
+| **Errores** | Alto riesgo (humano) | Cero (automatizado) | 100% ⬇️ |
+| **Ejecución** | Diurna (2 días) | Nocturna (1 día) | +100% disponibilidad |
+| **Trazabilidad** | Manual (Excel) | Automática (logs) | Auditoría completa |
+| **Dependencia** | 1 ETC dedicado | 0 ETC (desatendido) | Liberación talento |
+
+---
 
 ## 🚀 Tecnologías Utilizadas
 
-### Opción 1: Power Automate Desktop (Implementación Principal)
-- **Power Automate Desktop v2.30+**: Orquestador RPA principal
-- **Microsoft Excel 2016+**: Procesamiento de datos y macros VBA
-- **SQL Server 2016+**: Bases de datos DWH_CC y DWH_Riesgos_Credito
-- **Python 3.8+**: Scripts auxiliares con pyodbc, pandas, openpyxl
-- **Windows 10/11**: Sistema operativo base
-- **Tiempo estimado**: 15 minutos por ejecución
+### Opción 1: Power Automate Desktop (PAD)
+- **Orquestador RPA**: Power Automate Desktop v2.30+
+- **Excel**: Microsoft Excel 2016+ con macros VBA
+- **SQL Server**: 2016+ (DWH_CC y DWH_Riesgos_Credito)
+- **Scripts**: Python 3.8+ (pandas, pyodbc, openpyxl)
+- **SO**: Windows 10/11
+- **Tiempo ejecución**: ~15 minutos
 
-### Opción 2: n8n (Alternativa Cloud-Ready)
-- **n8n v1.x**: Plataforma de automatización open source
-- **Node.js 18.x**: Runtime del servidor n8n
-- **Python 3.9+**: Scripts de procesamiento (pandas, numpy, openpyxl, pyodbc)
-- **Docker**: Contenedorización (opcional)
-- **Multiplataforma**: Linux/macOS/Windows
-- **Tiempo estimado**: 8 minutos por ejecución (47% más rápido que PAD)
+### Opción 2: n8n (Cloud-Ready)
+- **Orquestador**: n8n v1.x (open source)
+- **Runtime**: Node.js 18.x
+- **Scripts**: Python 3.9+ (pandas, numpy, openpyxl, pyodbc)
+- **Contenedor**: Docker (opcional)
+- **SO**: Linux/macOS/Windows
+- **Tiempo ejecución**: ~8 minutos (47% más rápido)
 
 ### Stack Común
-- **SQL Server**: Servidores 10.1.3.101\SCC y 10.1.5.172\RIESGOS
-- **Excel**: Plantillas y macros VBA para cálculos de amortización
-- **Git**: Control de versiones
-- **Markdown**: Documentación
+- **Bases de datos**: SQL Server (10.1.3.101\SCC, 10.1.5.172\RIESGOS)
+- **Archivos**: Excel .xlsx y .xls (97-2003) con macros VBA
+- **Control versiones**: Git
+- **Documentación**: Markdown
 
-## 📊 Estado del Proyecto
+## 📊 Historias de Usuario Funcionales
 
-### ✅ Fase Actual: Documentación Completada
+### Resumen del Backlog (14 HU)
 
-| Sprint | Historias de Usuario | Estado | Estimación | Descripción |
-|--------|---------------------|--------|------------|-------------|
-| **Sprint 1** | HU-01 a HU-07 | ✅ Documentadas | 48h | Extracción SQL y consolidación Excel |
-| **Sprint 2** | HU-08 a HU-11 | ✅ Documentadas | 32.5h | Organización de datos y cargue SQL |
-| **Sprint 3** | HU-12 a HU-16 | ✅ Documentadas | 50h | Validaciones y cálculos complejos |
-| **Sprint 4** | HU-17 a HU-21 | ✅ Documentadas | 35h | Formato de entrega y cargue final |
-| **TOTAL** | **21 HU** | **100%** | **165.5h** | **7 semanas de desarrollo** |
+El proceso se divide en **14 historias de usuario funcionales** agnósticas a la tecnología:
 
-### 📅 Cronograma
-- **Duración total**: 7 semanas
-- **Esfuerzo**: 165.5 horas
-- **Ejecución**: 4 sprints de 1-2 semanas cada uno
-- **Recurso**: 1 Desarrollador Power Automate Desktop Junior
+| # | Historia | Descripción | Complejidad |
+|---|----------|-------------|-------------|
+| **HU-01** | Programar Ejecución | Activar proceso en fecha/hora configuradas (último día hábil) | Media |
+| **HU-02** | Administrar Parámetros | Cargar, validar y versionar parámetros operativos | Media |
+| **HU-03** | Iniciar Ejecución Manual | Permitir disparo manual seguro del proceso | Baja |
+| **HU-04** | Extraer Datos Fuentes Internas | Consultar DWH reestructurados, modificados, retenidos | Alta ⭐ |
+| **HU-05** | Validar Calidad Datos | Verificar completitud y consistencia de datos | Media |
+| **HU-06** | Consolidar Datos | Unir datos válidos en estructura común | Media |
+| **HU-07** | Obtener Variables Complementarias | Incorporar tasas, plazos, factores adicionales | Alta ⭐ |
+| **HU-08** | Calcular Indicadores | Generar valor valuativo y pérdida/ganancia | Alta ⭐ |
+| **HU-09** | Gestionar Errores y Alertas | Detectar errores críticos y notificar | Media |
+| **HU-10** | Generar Reportes | Crear reportes detalle y ejecutivo | Media |
+| **HU-11** | Distribuir Reportes | Enviar reportes a lista de distribución vigente | Baja |
+| **HU-12** | Registrar Auditoría y Archivar | Registro estructurado de cada ejecución | Media |
+| **HU-13** | Tablero KPIs | Visualizar KPIs de ejecución y calidad | Media |
+| **HU-14** | Gestionar Listas Destinatarios | Administrar listas y permisos de acceso | Baja |
 
-### 🎯 Historias de Usuario Completadas (21/21)
+> **Nota:** Las HU están documentadas de forma **agnóstica a la tecnología** para permitir implementación en PAD, n8n, o cualquier otro orquestador RPA.
 
-#### Sprint 1: Extracción y Consolidación (48h)
-- **HU-01**: Extracción DWH Reestructurados/Modificados (10h)
-- **HU-02**: Preparación Archivo Consolidación (5h)
-- **HU-03**: Consolidar Reestructurados SQL→Excel (4h)
-- **HU-04**: Consolidar Modificados SQL→Excel (4h)
-- **HU-05**: Consolidar Reestructurados Totales (4h)
-- **HU-06**: Consolidar Modificados Totales (4h)
-- **HU-07**: Consolidar y Transformar Retenidos (17h) ⭐ Más compleja
+### Actividades Técnicas Clave
 
-#### Sprint 2: Organización y Cargue SQL (32.5h)
-- **HU-08**: Organizar Reestructurados para Cargue (10h)
-- **HU-09**: Organizar Modificados para Cargue (7h)
-- **HU-10**: Organizar Retenciones y Cerrar Excel (5.5h)
-- **HU-11**: Cargue a SQL Server (10h)
+#### 1. Extracción de Datos (HU-04)
+- **Fuentes:** DWH_CC (10.1.3.101\SCC) y DWH_Riesgos_Credito (10.1.5.172\RIESGOS)
+- **Tipos:** Reestructurados, Modificados, Retenciones
+- **Volumen:** 1,000-1,500 registros/mes
+- **Complejidad:** Queries dinámicos con tablas temporales
 
-#### Sprint 3: Validaciones y Cálculos (50h)
-- **HU-12**: Validación y Completitud SQL (8h)
-- **HU-13**: Recolección Tasas, Plazos y Saldos (12h) ⭐ Más compleja técnicamente
-- **HU-14**: Cálculo Pérdida/Ganancia (14h) ⭐ Cálculos financieros
-- **HU-15**: Query Variables Valuativo (6h)
-- **HU-16**: Ejecución Macro Amortización (10h) ⭐ Integración VBA
+#### 2. Consolidación y Transformación (HU-05, HU-06)
+- **Clasificación:** Consolidada/Individual + Misma/Diferente Obligación
+- **Transformaciones:** Fechas dd/mm/yyyy → YYYYMMDD
+- **Validaciones:** Campos obligatorios, rangos, consistencia
 
-#### Sprint 4: Formato de Entrega (35h)
-- **HU-17**: Preparar Formato Envío Mensual (6h)
-- **HU-18**: Subir Base Valuativa a SQL (5h)
-- **HU-19**: Consolidar Hoja BASE (8h)
-- **HU-20**: Verificación y Ajustes Producción (10h)
-- **HU-21**: Cargue Final y Entrega (6h)
+#### 3. Validación de Completitud (HU-05, HU-07)
+- **Linked Server:** Cruce con bases externas para completar información faltante
+- **Campos críticos:** Tipo_Id, Numero_Id, Modalidad, Tasas, Plazos, Saldos
+- **Umbral aceptación:** ≥98% registros válidos
+
+#### 4. Cálculos Financieros (HU-08)
+- **Tasas ponderadas:** Para consolidaciones de múltiples obligaciones
+- **Valor presente (VP):** Cálculo con tasa anterior vs nueva
+- **Pérdida/Ganancia:** Diferencia entre VP anterior y VP nuevo
+- **Fórmulas Excel:** Integradas con datos de SQL
+
+#### 5. Macro VBA Amortización (HU-08)
+- **Función:** Generar tablas de amortización por obligación
+- **Input:** Variables de cálculo desde SQL (bd_perdidas_ganancias_dwh)
+- **Output:** Valores de amortización mensual
+- **Complejidad:** Integración Excel-SQL bidireccional
+
+#### 6. Formato de Entrega (HU-10)
+- **Archivo final:** Excel 97-2003 (.xls) para compatibilidad
+- **Estructura:** Hoja BASE consolidada (50+ columnas)
+- **Validaciones finales:** Filtros, advertencias, ajustes especiales
+- **Hash SHA-256:** Verificación de integridad
+
+#### 7. Cargue a Producción (HU-12)
+- **Tablas destino:** 
+  - `[ANDREAL].[Costo_Amortizado_001_*_Acum]` (reestructurados, modificados, retenciones)
+  - `[ANDREAL].[bd_costo_amortizable_MM_AAAA]` (base final)
+- **Validaciones:** Cantidad de registros cargados vs esperados
 
 ## 📦 Requisitos Previos
 
@@ -242,8 +396,8 @@ EMAIL_FROM=rda.costoamortizable@cajasocial.com
 EMAIL_TO=riesgos@cajasocial.com
 ```
 
-### 3. Configurar Parámetros del Proceso
-Editar `config/parametros/configuracion_proceso.json`:
+### 3. Verificar Scripts SQL
+Los scripts están en `scripts/sql/` y deben ejecutarse en este orden:
 ```json
 {
   "frecuencia_ejecucion": "mensual",
@@ -303,247 +457,76 @@ Los scripts están en `scripts/sql/`:
 
 Ejecutar validación de sintaxis en SSMS antes del primer uso.
 
-## 📖 Uso
+## 📖 Ejecución del Proceso
 
-### Ejecución con Power Automate Desktop
+### Frecuencia y Horario
+- **Frecuencia**: Mensual (último día hábil del mes)
+- **Horario**: 08:00 AM (ejecución desatendida)
+- **Duración**: ~15 minutos (PAD) u 8 minutos (n8n)
+- **Tipo**: Asistente (sin intervención humana)
 
-#### Ejecución Manual
-1. Abrir **Power Automate Desktop**
-2. Seleccionar flujo `RDA_Costo_Amortizable_Principal`
-3. Configurar variables de entrada:
-   - Mes de proceso (formato: MM)
-   - Año de proceso (formato: AAAA)
-   - Modo de ejecución: `PRODUCCION` o `PRUEBA`
-4. Clic en **▶️ Ejecutar**
-5. Monitorear progreso en consola
-6. Validar reportes generados en `data/output/reportes/`
+### Archivos Generados
 
-#### Ejecución Programada
-1. En Power Automate Desktop, clic derecho en el flujo
-2. Seleccionar **"Programar"**
-3. Configurar:
-   - Frecuencia: Mensual
-   - Día: Último día hábil del mes
-   - Hora: 08:00 AM
-4. Guardar programación
-5. El flujo se ejecutará automáticamente
+| Archivo | Descripción | Ubicación |
+|---------|-------------|-----------|
+| `Consolidacion_MM_AAAA.xlsx` | Archivo de trabajo consolidado | `data/output/reportes/` |
+| `COSTO_AMORTIZABLE_MM_AAAA.xls` | Archivo final formato 97-2003 | `data/output/reportes/` |
+| `proceso_MM_AAAA.log` | Log detallado de ejecución | `data/output/logs/` |
 
-#### Estructura del Flujo Principal
+### Tablas SQL Generadas
+
+| Tabla | Descripción |
+|-------|-------------|
+| `[ANDREAL].[Costo_Amortizado_001_Reestructurados_Acum]` | Reestructurados consolidados |
+| `[ANDREAL].[Costo_Amortizado_001_Modificados_Acum]` | Modificados consolidados |
+| `[ANDREAL].[Costo_Amortizado_001_Retenciones_Acum]` | Retenciones consolidadas |
+| `[ANDREAL].[bd_costo_amortizable_MM_AAAA]` | Base valuativa final del mes |
+| `[ANDREAL].[bd_perdidas_ganancias_dwh]` | Cálculos de pérdidas/ganancias |
+
+### Notificaciones Automáticas
+
+**En caso de éxito:**
 ```
-RDA_Costo_Amortizable_Principal
-├── 01_Inicializar_Variables
-├── 02_Validar_Conectividad_SQL
-├── 03_Extraccion_DWH (HU-01)
-├── 04_Preparar_Excel (HU-02)
-├── 05_Consolidar_Reestructurados (HU-03, HU-05)
-├── 06_Consolidar_Modificados (HU-04, HU-06)
-├── 07_Consolidar_Retenidos (HU-07)
-├── 08_Organizar_Datos (HU-08, HU-09, HU-10)
-├── 09_Cargue_SQL (HU-11)
-├── 10_Validaciones_Completitud (HU-12)
-├── 11_Recoleccion_Tasas_Plazos (HU-13)
-├── 12_Calculo_Perdida_Ganancia (HU-14)
-├── 13_Variables_Valuativo (HU-15)
-├── 14_Macro_Amortizacion (HU-16)
-├── 15_Formato_Entrega (HU-17)
-├── 16_Cargue_Base_Valuativa (HU-18)
-├── 17_Consolidar_BASE (HU-19)
-├── 18_Verificacion_Final (HU-20)
-├── 19_Cargue_Final_Entrega (HU-21)
-└── 20_Enviar_Notificaciones
+Asunto: ✅ RDA Costo Amortizable - Ejecución Exitosa [MM/AAAA]
+Destinatarios: Carol Patricia Campos, Coordinador Riesgos
+Adjunto: COSTO_AMORTIZABLE_MM_AAAA.xls
 ```
 
-### Ejecución con n8n
-
-#### Ejecución Manual
-1. Acceder a interfaz web: `http://localhost:5678`
-2. Abrir workflow `RDA Costo Amortizable - Principal`
-3. Configurar parámetros en nodo "Set Variables":
-   ```json
-   {
-     "mes_proceso": "11",
-     "anio_proceso": "2025",
-     "modo": "PRODUCCION"
-   }
-   ```
-4. Clic en **"Execute Workflow"**
-5. Monitorear ejecución en tiempo real
-6. Revisar logs y outputs
-
-#### Ejecución Automática (Cron)
-El workflow incluye un nodo **Cron Trigger** configurado para:
-- **Expresión**: `0 8 28-31 * *` (8:00 AM, días 28-31 de cada mes)
-- **Timezone**: America/Bogota
-- **Validación**: Verifica que sea el último día hábil del mes
-
-#### Ventajas de n8n
-- ⚡ **Ejecución paralela** de queries SQL (47% más rápido)
-- 🔍 **Visibilidad en tiempo real** de cada paso
-- 🔄 **Reintentos automáticos** en caso de fallo temporal
-- 📊 **Dashboard de métricas** integrado
-- 🌐 **Webhooks** para integración con otros sistemas
-
-### Monitoreo y Logs
-
-#### Ubicación de Logs
-- **Logs de ejecución**: `logs/ejecuciones/RDA_YYYYMMDD_HHMMSS.log`
-- **Logs de errores**: `logs/errores/ERROR_YYYYMMDD_HHMMSS.log`
-- **Logs de procesamiento**: `data/output/logs/proceso_MM_AAAA.log`
-
-#### Estructura de Log
+**En caso de error:**
 ```
-[2025-11-30 08:00:15] INFO - Iniciando proceso RDA Costo Amortizable - Mes: 11/2025
-[2025-11-30 08:00:45] INFO - [HU-01] Extracción DWH completada - 1,245 registros
-[2025-11-30 08:02:30] INFO - [HU-03] Consolidación reestructurados - 543 registros
-[2025-11-30 08:05:12] WARNING - [HU-12] 15 registros con información incompleta
-[2025-11-30 08:12:45] INFO - [HU-16] Macro amortización ejecutada exitosamente
-[2025-11-30 08:14:30] INFO - Proceso completado - Archivo generado: COSTO_AMORTIZABLE_11_2025.xls
-[2025-11-30 08:14:45] INFO - Notificaciones enviadas a 3 destinatarios
+Asunto: ❌ RDA Costo Amortizable - ERROR [MM/AAAA]
+Detalle: Paso fallido, mensaje de error, log completo
+Acción: Requiere intervención manual
 ```
-
-### Salidas Generadas
-
-#### Archivos Excel
-- **Consolidación mensual**: `data/output/reportes/Consolidacion_Costo_Amortizable_MM_AAAA.xlsx`
-- **BASE final**: `data/output/reportes/BASE_FINAL_MM_AAAA.xlsx`
-- **Archivo entrega**: `data/output/reportes/COSTO_AMORTIZABLE_MM_AAAA.xls` (Excel 97-2003)
-
-#### Reportes SQL
-- **Tabla bd_costo_amortizable_MM_AAAA**: Base valuativa cargada en SQL
-- **Tabla bd_perdidas_ganancias_dwh**: Consolidado de pérdidas/ganancias
-
-#### Metadata y Auditoría
-- **Hash SHA-256**: Verificación de integridad del archivo
-- **PDF de evidencia**: Screenshot del proceso completado
-- **Reporte de ejecución**: Estadísticas y tiempos por historia de usuario
 
 ## 📝 Documentación
 
-### Documentación Funcional
+### Acceso Rápido a Documentos Clave
 
-#### Historias de Usuario (21 completadas)
-📂 `documentacion/funcional/historias_usuario/`
+| Documento | Descripción | Ubicación |
+|-----------|-------------|-----------|
+| 📖 **PDD v1.0** | Process Design Document (89 págs) | `documentacion/funcional/pdd/PDD_RDA_Costo_Amortizable_v1.0.md` |
+| 📋 **Historias de Usuario** | 14 HU funcionales agnósticas | `documentacion/funcional/historias_usuario/backlog/` |
+| 🔧 **Setup PAD** | Requisitos Power Automate Desktop | `documentacion/tecnica/Requisitos_Infraestructura_PAD.md` |
+| ☁️ **Setup n8n** | Requisitos n8n Cloud-Ready | `documentacion/tecnica/Requisitos_Infraestructura_n8n.md` |
+| 📊 **Diagramas BPMN** | AS-IS y TO-BE visuales | `documentacion/tecnica/diagramas/` |
+| 🗓️ **Cronograma** | Plan de desarrollo | `documentacion/gestion_proyecto/cronograma/` |
 
-- **Índice Maestro**: `Indice_Maestro_Historias_Usuario.md` - Resumen de las 21 HU
-- **Resumen de Avance**: `Resumen_Avance_HU.md` - Estado del proyecto
-- **Plantilla Corporativa**: `refinadas/Plantilla_Historia_Usuario_v2.md`
+### Estructura de Documentación
 
-**Historias en Progreso**: `en_progreso/`
-- HU-01 a HU-21: Todas documentadas con formato corporativo
-- Cada HU incluye:
-  - Datos de identificación
-  - Declaración (Yo como / Quiero / De forma que)
-  - Criterios de aceptación (Insumos, Funcionalidades, Puntos de control, Salidas)
-  - Dependencias técnicas y de negocio
-  - Estimación de esfuerzo
-  - Riesgos identificados y mitigaciones
-
-#### PDD (Process Design Document)
-📂 `documentacion/funcional/pdd/`
-
-- **PDD Principal**: `PDD_RDA_Costo_Amortizable_v1.0.md` (89 páginas)
-- **PDD Original**: `PDD-COSTO AMORTIZABLE.pdf`
-- Incluye:
-  - Descripción detallada del proceso AS-IS
-  - Diseño del proceso TO-BE
-  - Casos de uso y excepciones
-  - Reglas de negocio y validaciones
-  - Diagrama de flujo detallado
-
-#### Plantillas y Referencias
-📂 `documentacion/funcional/insumos/plantillas/`
-
-- `Plantilla_Reportes_Costo_Amortizable.md`: Estructura de reportes
-- `formato-historia-usuario.md`: Formato corporativo aprobado
-
-### Documentación Técnica
-
-#### Requisitos de Infraestructura
-📂 `documentacion/tecnica/`
-
-- **Power Automate Desktop**: `Requisitos_Infraestructura_PAD.md`
-  - Hardware, software, conectividad
-  - Configuración de credenciales
-  - Troubleshooting común
-  
-- **n8n**: `Requisitos_Infraestructura_n8n.md`
-  - Opciones de conectividad (VPN, SSH Bastion, Híbrido, ExpressRoute)
-  - Instalación y configuración
-  - Arquitectura Azure ↔ On-Premise
-  - Costos estimados
-
-- **Resumen Funcional n8n**: `Resumen_Funcional_n8n.md`
-  - Flujo de alto nivel
-  - KPIs y gobernanza
-  - Roles y responsabilidades
-  - Fases de implementación
-
-#### Diagramas de Proceso
-📂 `documentacion/tecnica/diagramas/`
-
-**BPMN** (`bpmn/` y `Drawio/`):
-- `01_AS-IS_Proceso_Manual1.bpmn`: Proceso manual actual (14 horas)
-- `02_TO-BE_Power_Automate_Desktop.bpmn`: Automatización PAD (15 min, 98.2% reducción)
-- `03_TO-BE_n8n_Workflow.bpmn`: Automatización n8n (8 min, 99% reducción, 47% más rápido)
-
-Cada diagrama incluye:
-- Tiempos estimados por actividad
-- Puntos de decisión y validación
-- Manejo de errores
-- Detalles técnicos de implementación
-
-### Documentación de Gestión
-
-#### Cronograma del Proyecto
-📂 `documentacion/gestion_proyecto/cronograma/`
-
-- **Cronograma Detallado**: `Cronograma_Desarrollo_RDA_Costo_Amortizable.md`
-  - 7 semanas de desarrollo
-  - 4 sprints con fechas específicas
-  - Diagrama de dependencias entre HU
-  - Matriz de riesgos del proyecto
-  
-- **Excel de Seguimiento**: `Cronograma RDA Costo Amortizable.xlsx`
-  - Gantt chart interactivo
-  - Tracking de horas por sprint
-  - Hitos y entregables
-
-#### Estructura Completa de Carpetas
 ```
 documentacion/
-├── funcional/
-│   ├── historias_usuario/
-│   │   ├── Indice_Maestro_Historias_Usuario.md
-│   │   ├── Resumen_Avance_HU.md
-│   │   ├── en_progreso/ (21 HU documentadas)
-│   │   ├── refinadas/ (Plantilla corporativa)
-│   │   ├── completadas/ (Post-desarrollo)
-│   │   └── backlog/ (Mejoras futuras)
-│   ├── pdd/
-│   │   ├── PDD_RDA_Costo_Amortizable_v1.0.md
-│   │   ├── PDD-COSTO AMORTIZABLE.pdf
-│   │   ├── anexos/
-│   │   └── versiones_anteriores/
-│   ├── casos_uso/
-│   ├── insumos/
-│   │   ├── formularios/
-│   │   ├── plantillas/
-│   │   └── referencias/
-│   └── requerimientos/
-│       ├── funcionales/
-│       └── no_funcionales/
-├── tecnica/
-│   ├── Requisitos_Infraestructura_PAD.md
-│   ├── Requisitos_Infraestructura_n8n.md
-│   ├── Resumen_Funcional_n8n.md
-│   ├── diagramas/
-│   │   ├── bpmn/ (Archivos BPMN editables)
-│   │   └── Drawio/ (Archivos Draw.io)
-│   ├── manual_usuario/ (Post-desarrollo)
-│   ├── manual_tecnico/ (Post-desarrollo)
-│   └── api_docs/
-└── gestion_proyecto/
-    ├── cronograma/
+├── funcional/                   # Documentación de negocio
+│   ├── pdd/                    # Process Design Document
+│   ├── historias_usuario/      # 14 HU + backlog
+│   └── insumos/                # Plantillas y referencias
+├── tecnica/                     # Documentación técnica
+│   ├── diagramas/              # BPMN AS-IS y TO-BE
+│   ├── Requisitos_*.md         # Setup PAD y n8n
+│   └── Resumen_Funcional_n8n.md
+└── gestion_proyecto/            # Gestión del proyecto
+    └── cronograma/             # Planificación desarrollo
+```
     │   ├── Cronograma_Desarrollo_RDA_Costo_Amortizable.md
     │   └── Cronograma RDA Costo Amortizable.xlsx
     ├── actas_reunion/
@@ -561,167 +544,43 @@ documentacion/
 | 🔧 **Setup PAD** | `documentacion/tecnica/Requisitos_Infraestructura_PAD.md` | Guía de configuración PAD |
 | ☁️ **Setup n8n** | `documentacion/tecnica/Requisitos_Infraestructura_n8n.md` | Guía de configuración n8n |
 
-## 🧪 Testing
+## 🧪 Testing y Validación
 
 ### Estrategia de Pruebas
 
-#### Pruebas Unitarias (Por Historia de Usuario)
-📂 `testing/casos_prueba/funcionales/`
+#### Fases de Testing
+1. **Pruebas Unitarias**: Validar cada HU individualmente (queries, transformaciones, cálculos)
+2. **Pruebas de Integración**: Ejecución end-to-end con datos históricos reales
+3. **Pruebas de Regresión**: Suite completa antes de cada release
+4. **Validación Usuario**: Comparación con proceso manual (umbral aceptación: ≥95%)
 
-Cada HU debe validarse individualmente:
-- **HU-01**: Verificar extracción correcta de registros desde DWH
-- **HU-03 a HU-07**: Validar consolidación y transformaciones de datos
-- **HU-12**: Comprobar validaciones de completitud
-- **HU-14**: Validar cálculos de pérdida/ganancia (valor presente)
-- **HU-16**: Verificar ejecución correcta de macros VBA
+#### Casos de Prueba Críticos
+- **HU-04**: Extracción correcta desde DWH (volumen y estructura)
+- **HU-07**: Completitud vía Linked Server
+- **HU-08**: Cálculos de valor presente y pérdida/ganancia (margen error: ±0.01%)
+- **HU-08**: Ejecución macros VBA sin fallos
 
-#### Datos de Prueba
-📂 `testing/datos_prueba/`
+#### Checklist Pre-Producción
+- [ ] Pruebas unitarias 100% exitosas
+- [ ] Validación funcional con Coordinadora Portafolio
+- [ ] Conectividad SQL en producción verificada
+- [ ] Credenciales de producción configuradas
+- [ ] Plan de rollback documentado
+- [ ] Programación automática configurada
 
-- **datos_historicos_validados/**: Ejecuciones manuales previas como benchmark
-- **casos_edge/**: Casos extremos y excepcionales
-  - Consolidaciones de 1 obligación
-  - Consolidaciones masivas (>10 obligaciones)
-  - Retenciones sin información completa
-  - Tasas fuera de rango esperado
+> 📂 **Casos de prueba detallados:** Ver `testing/casos_prueba/` y `testing/datos_prueba/`
 
-#### Plan de Pruebas
+## 📊 Monitoreo y KPIs
 
-**Fase 1: Pruebas Unitarias** (Sprint por Sprint)
-```
-Sprint 1 - Extracción y Consolidación
-├── Validar queries SQL (sintaxis y resultados)
-├── Verificar transformaciones de fechas (dd/mm/yyyy → YYYYMMDD)
-├── Comprobar consolidación correcta en Excel
-└── Tiempo esperado: 8h pruebas
+### Ubicación de Logs
 
-Sprint 2 - Organización y Cargue
-├── Validar clasificación (Consolidada/Individual, Misma/Diferente)
-├── Verificar cargue a tablas SQL sin duplicados
-└── Tiempo esperado: 6h pruebas
+| Tipo | Ubicación | Formato |
+|------|-----------|---------|
+| **Ejecuciones exitosas** | `logs/ejecuciones/` | `RDA_YYYYMMDD_HHMMSS_SUCCESS.log` |
+| **Errores** | `logs/errores/` | `RDA_YYYYMMDD_HHMMSS_ERROR.log` |
+| **Procesamiento** | `data/output/logs/` | `proceso_MM_AAAA.log` |
 
-Sprint 3 - Validaciones y Cálculos
-├── Validar completitud de información
-├── Verificar cálculos de tasas ponderadas
-├── Comprobar fórmulas de valor presente
-├── Validar ejecución de macros VBA
-└── Tiempo esperado: 12h pruebas (crítico)
-
-Sprint 4 - Formato y Entrega
-├── Validar formato final (.xls Excel 97-2003)
-├── Verificar hash SHA-256 del archivo
-├── Comprobar envío de notificaciones
-└── Tiempo esperado: 5h pruebas
-```
-
-**Fase 2: Pruebas de Integración**
-- Ejecución end-to-end con datos reales (históricos)
-- Comparación con proceso manual (mes anterior)
-- Validación con Coordinador de Riesgos
-- Umbral de aceptación: **95% de coincidencia** con proceso manual
-
-**Fase 3: Pruebas de Regresión**
-- Ejecutar suite completa antes de cada release
-- Validar que cambios no afecten funcionalidades existentes
-
-### Ejecución de Casos de Prueba
-
-#### Caso de Prueba Ejemplo: HU-14 (Cálculo Pérdida/Ganancia)
-
-**Prerequisitos**:
-- Base de datos con información de tasas, plazos y saldos
-- Excel con fórmulas de valor presente configuradas
-
-**Pasos**:
-1. Ejecutar cálculo de valor presente con tasa antigua
-2. Ejecutar cálculo de valor presente con tasa nueva
-3. Calcular diferencia (pérdida o ganancia)
-4. Validar que resultado coincida con cálculo manual
-
-**Criterios de Aceptación**:
-- ✅ Pérdida/Ganancia calculada correctamente (margen error: ±0.01%)
-- ✅ Clasificación correcta (Pérdida si negativo, Ganancia si positivo)
-- ✅ Campos calculados sin valores nulos
-- ✅ Tiempo de ejecución < 5 minutos para 1000 registros
-
-**Datos de Prueba**:
-```
-Obligación: 123456789
-Saldo Anterior: $100,000,000
-Tasa Anterior: 15% EA
-Tasa Nueva: 12% EA
-Plazo Restante: 24 meses
-Resultado Esperado: Ganancia de $5,234,567
-```
-
-### Checklist Pre-Producción
-
-- [ ] Todas las HU tienen casos de prueba documentados
-- [ ] Pruebas unitarias ejecutadas con 100% de éxito
-- [ ] Prueba de integración end-to-end exitosa
-- [ ] Comparación con proceso manual validada (>95% coincidencia)
-- [ ] Pruebas de conectividad SQL en producción
-- [ ] Credenciales de producción configuradas y validadas
-- [ ] Logs de prueba revisados sin errores críticos
-- [ ] Validación por usuario funcional (Carol Patricia Campos González)
-- [ ] Validación por Coordinador de Riesgos
-- [ ] Plan de rollback definido
-- [ ] Documentación de usuario actualizada
-- [ ] Programación de ejecución automática configurada
-
-### Registro de Resultados
-
-Documentar resultados en: `testing/casos_prueba/resultados_YYYYMMDD.md`
-
-Formato:
-```markdown
-# Resultados de Pruebas - DD/MM/YYYY
-
-## Resumen Ejecutivo
-- Total casos ejecutados: 47
-- Casos exitosos: 45 (95.7%)
-- Casos fallidos: 2 (4.3%)
-- Casos bloqueados: 0
-
-## Casos Fallidos
-### HU-13: Recolección de Tasas
-- Error: Tasa ponderada incorrecta para consolidaciones >5 obligaciones
-- Causa: Fórmula Excel no expandida correctamente
-- Corrección: Ajustar rango dinámico en macro VBA
-- Estado: Corregido y re-testeado ✅
-
-## Conclusión
-Proceso aprobado para producción con correcciones aplicadas.
-```
-
-## 📊 Logs y Monitoreo
-
-### Estructura de Logs
-
-#### Logs Automáticos
-Todos los logs se generan automáticamente en cada ejecución:
-
-**Logs de Ejecución Exitosa**: `logs/ejecuciones/`
-```
-RDA_20251130_080015_SUCCESS.log
-RDA_20251031_080230_SUCCESS.log
-RDA_20250930_075845_SUCCESS.log
-```
-
-**Logs de Errores**: `logs/errores/`
-```
-RDA_20251115_083012_ERROR.log
-RDA_20251015_091523_ERROR.log
-```
-
-**Logs de Procesamiento**: `data/output/logs/`
-```
-proceso_11_2025.log
-proceso_10_2025.log
-proceso_09_2025.log
-```
-
-### Formato de Log Estándar
+### KPIs del Proceso
 
 ```log
 ================================================================================
@@ -888,727 +747,78 @@ Contacto: soporte.rpa@cajasocial.com
 | Hash SHA-256 no coincide | Archivo modificado manualmente | Regenerar archivo desde proceso |
 | Notificaciones no enviadas | Credenciales SMTP incorrectas | Reconfigurar credenciales email |
 
-## 🤝 Contribuciones
-
-### Flujo de Trabajo Git
-
-Este proyecto utiliza **Git Flow** simplificado:
-
-```
-main (producción)
-  ↑
-develop (integración)
-  ↑
-feature/* (desarrollo de HU)
-```
-
-### Creación de Nueva Feature
-
-```bash
-# Actualizar develop
-git checkout develop
-git pull origin develop
-
-# Crear rama feature
-git checkout -b feature/nombre-descriptivo
-
-# Ejemplo: 
-git checkout -b feature/HU-22-mejora-validaciones
-```
-
-### Proceso de Desarrollo
-
-1. **Desarrollar en rama feature**
-   ```bash
-   # Hacer cambios
-   git add .
-   git commit -m "feat(HU-22): Implementar validación adicional de saldos"
-   
-   # Commits frecuentes con mensajes descriptivos
-   ```
-
-2. **Convención de Commits** (Conventional Commits)
-   ```
-   feat(HU-XX): Descripción de nueva funcionalidad
-   fix(HU-XX): Corrección de error
-   docs: Actualización de documentación
-   test(HU-XX): Agregar o modificar pruebas
-   refactor(HU-XX): Refactorización sin cambio funcional
-   perf(HU-XX): Mejora de rendimiento
-   chore: Tareas de mantenimiento
-   ```
-
-3. **Documentar Cambios**
-   - Actualizar historia de usuario correspondiente
-   - Actualizar documentación técnica si aplica
-   - Agregar casos de prueba en `testing/`
-   - Actualizar README si hay cambios significativos
-
-4. **Realizar Pruebas**
-   ```bash
-   # Ejecutar casos de prueba de la HU modificada
-   # Ejecutar suite de regresión si aplica
-   # Documentar resultados en testing/casos_prueba/
-   ```
-
-5. **Push a Repositorio Remoto**
-   ```bash
-   git push origin feature/HU-22-mejora-validaciones
-   ```
-
-6. **Crear Pull Request**
-   - Ir a GitHub: https://github.com/Stiven9710/RDA_Costo_Amortizable
-   - Crear PR desde `feature/HU-22-mejora-validaciones` hacia `develop`
-   - Completar plantilla de PR:
-     ```markdown
-     ## Descripción
-     Implementa validación adicional de saldos negativos en HU-14
-     
-     ## Tipo de Cambio
-     - [x] Nueva funcionalidad
-     - [ ] Corrección de error
-     - [ ] Mejora de rendimiento
-     - [ ] Documentación
-     
-     ## Historia de Usuario
-     - HU-14: Cálculo Pérdida/Ganancia
-     
-     ## Pruebas Realizadas
-     - [x] Pruebas unitarias
-     - [x] Pruebas de integración
-     - [x] Validación con datos históricos
-     
-     ## Checklist
-     - [x] Código revisado y sin errores
-     - [x] Documentación actualizada
-     - [x] Casos de prueba agregados
-     - [x] Sin conflictos con develop
-     ```
-
-7. **Code Review y Aprobación**
-   - Revisor asignado valida cambios
-   - Correcciones si son necesarias
-   - Aprobación de PR
-
-8. **Merge a Develop**
-   ```bash
-   # Después de aprobación, hacer merge
-   git checkout develop
-   git pull origin develop
-   git merge --no-ff feature/HU-22-mejora-validaciones
-   git push origin develop
-   ```
-
-### Estructura de Branches
-
-| Branch | Propósito | Merge desde | Merge hacia |
-|--------|-----------|-------------|-------------|
-| `main` | Código en producción | `develop` | - |
-| `develop` | Integración de features | `feature/*` | `main` |
-| `feature/*` | Desarrollo de HU | `develop` | `develop` |
-| `hotfix/*` | Correcciones urgentes | `main` | `main` + `develop` |
-
-### Revisión de Código - Checklist
-
-Antes de aprobar un PR, verificar:
-
-**Código**:
-- [ ] Sigue convenciones de nomenclatura
-- [ ] Sin código comentado innecesario
-- [ ] Sin credenciales hardcodeadas
-- [ ] Manejo adecuado de errores
-- [ ] Logs informativos agregados
-
-**Documentación**:
-- [ ] Historia de usuario actualizada
-- [ ] README actualizado si aplica
-- [ ] Comentarios en código complejo
-- [ ] Diagramas actualizados si cambió flujo
-
-**Pruebas**:
-- [ ] Casos de prueba documentados
-- [ ] Pruebas ejecutadas y exitosas
-- [ ] Sin regresiones detectadas
-- [ ] Performance dentro de límites aceptables
-
-**Impacto**:
-- [ ] No afecta otras historias de usuario
-- [ ] Compatible con versión actual
-- [ ] Rollback plan definido si aplica
-
-### Hotfixes (Correcciones Urgentes)
-
-En caso de error crítico en producción:
-
-```bash
-# Crear hotfix desde main
-git checkout main
-git pull origin main
-git checkout -b hotfix/descripcion-breve
-
-# Hacer corrección
-git add .
-git commit -m "hotfix: Corregir timeout SQL en HU-01"
-
-# Merge a main y develop
-git checkout main
-git merge --no-ff hotfix/descripcion-breve
-git push origin main
-
-git checkout develop
-git merge --no-ff hotfix/descripcion-breve
-git push origin develop
-
-# Eliminar branch hotfix
-git branch -d hotfix/descripcion-breve
-```
-
-### Versionado
-
-El proyecto sigue **Semantic Versioning (SemVer)**:
-
-```
-MAJOR.MINOR.PATCH
-  1  .  0  .  0
-
-MAJOR: Cambios incompatibles con versión anterior
-MINOR: Nueva funcionalidad compatible con versión anterior
-PATCH: Correcciones de errores
-```
-
-Ejemplo:
-- `v1.0.0`: Release inicial (21 HU completas)
-- `v1.1.0`: Agregar HU-22 (nueva funcionalidad)
-- `v1.1.1`: Corregir bug en HU-14 (patch)
-- `v2.0.0`: Cambiar de PAD a n8n (breaking change)
-
-### Releases
-
-Para crear un nuevo release:
-
-```bash
-# Desde develop, merge a main
-git checkout main
-git merge --no-ff develop
-git tag -a v1.0.0 -m "Release v1.0.0 - 21 Historias de Usuario"
-git push origin main --tags
-
-# Crear Release en GitHub con changelog
-```
-
-## 📋 Gestión del Proyecto
-
-### Metodología
-
-**Metodología Ágil - Scrum Adaptado**
-
-- **Sprints**: 4 sprints de 1-2 semanas cada uno
-- **Duración total**: 7 semanas
-- **Esfuerzo estimado**: 165.5 horas
-- **Recurso**: 1 Desarrollador Junior Power Automate Desktop
-
-### Cronograma Detallado
-
-📂 **Documento completo**: `documentacion/gestion_proyecto/cronograma/Cronograma_Desarrollo_RDA_Costo_Amortizable.md`
-
-#### Sprint 1: Extracción y Consolidación (2 semanas - 48h)
-**Semana 1-2**: HU-01 a HU-07
-- Extracción desde DWH
-- Preparación de plantillas Excel
-- Consolidación de reestructurados y modificados
-- Transformación de datos retenidos
-
-**Entregables**:
-- ✅ Conexión SQL funcional
-- ✅ Queries de extracción probados
-- ✅ Plantilla Excel consolidada
-- ✅ Datos transformados correctamente
-
-#### Sprint 2: Organización y Cargue SQL (1.5 semanas - 32.5h)
-**Semana 3-4**: HU-08 a HU-11
-- Clasificación de datos (Consolidada/Individual)
-- Organización por tipo de obligación
-- Cargue a tablas SQL Server
-
-**Entregables**:
-- ✅ Datos organizados en hojas Excel
-- ✅ Cargue SQL automatizado
-- ✅ Validación de carga sin duplicados
-
-#### Sprint 3: Validaciones y Cálculos (2 semanas - 50h)
-**Semana 4-6**: HU-12 a HU-16
-- Validaciones de completitud
-- Cálculos de tasas ponderadas
-- Cálculo de pérdidas/ganancias
-- Ejecución de macros VBA
-
-**Entregables**:
-- ✅ Validaciones implementadas
-- ✅ Cálculos financieros validados
-- ✅ Macros VBA integradas
-- ✅ Tablas de amortización generadas
-
-#### Sprint 4: Formato de Entrega (1.5 semanas - 35h)
-**Semana 6-7**: HU-17 a HU-21
-- Formato de reporte mensual
-- Consolidación en hoja BASE
-- Verificaciones finales
-- Cargue y entrega
-
-**Entregables**:
-- ✅ Reporte en formato estándar
-- ✅ Archivo final .xls generado
-- ✅ Cargue a base de datos producción
-- ✅ Notificaciones enviadas
-
-### Roles y Responsabilidades
-
-| Rol | Responsabilidad | Persona |
-|-----|----------------|---------|
-| **Product Owner** | Definir requerimientos y priorizar backlog | Coordinador de Riesgos |
-| **Scrum Master** | Facilitar proceso y remover impedimentos | Líder Proyecto RPA |
-| **Desarrollador RPA** | Implementar historias de usuario | Desarrollador Junior PAD |
-| **Usuario Final** | Validar funcionalidad y aceptar entregas | Carol Patricia Campos González |
-| **Analista Funcional** | Documentar procesos y validar lógica negocio | Analista de Riesgos |
-| **Soporte TI** | Configurar infraestructura y accesos | Equipo Infraestructura |
-
-### Reuniones Clave
-
-#### Daily Standup (Diario - 15 min)
-- ¿Qué hice ayer?
-- ¿Qué haré hoy?
-- ¿Tengo impedimentos?
-
-#### Sprint Planning (Inicio de cada Sprint - 2h)
-- Revisar historias del sprint
-- Definir tareas técnicas
-- Estimar esfuerzo
-
-#### Sprint Review (Final de cada Sprint - 1h)
-- Demo de funcionalidad desarrollada
-- Validación con usuario final
-- Aceptación de historias
-
-#### Sprint Retrospective (Final de cada Sprint - 1h)
-- ¿Qué salió bien?
-- ¿Qué puede mejorar?
-- Acciones de mejora
-
-### Control de Cambios
-
-Cualquier cambio en alcance debe seguir proceso:
-
-1. **Solicitud de Cambio**: Documentar en `documentacion/gestion_proyecto/seguimiento/cambios.md`
-2. **Evaluación de Impacto**: Analizar impacto en tiempo, costo, calidad
-3. **Aprobación**: Product Owner debe aprobar
-4. **Actualización**: Actualizar cronograma y documentación
-5. **Comunicación**: Notificar a todos los stakeholders
-
-### Métricas de Seguimiento
-
-#### Burndown Chart
-Seguimiento de horas restantes por sprint:
-
-```
-Sprint 1: 48h → 40h → 28h → 15h → 5h → 0h ✅
-Sprint 2: 32.5h → 25h → 18h → 8h → 0h ✅
-Sprint 3: 50h → 42h → 30h → 18h → 10h → 3h → 0h ✅
-Sprint 4: 35h → 28h → 20h → 12h → 5h → 0h ✅
-```
-
-#### Velocity
-Horas completadas por sprint:
-
-| Sprint | Estimado | Real | Variación |
-|--------|----------|------|-----------|
-| Sprint 1 | 48h | 51h | +6.3% |
-| Sprint 2 | 32.5h | 30h | -7.7% |
-| Sprint 3 | 50h | 53h | +6.0% |
-| Sprint 4 | 35h | 31.5h | -10.0% |
-| **TOTAL** | **165.5h** | **165.5h** | **0%** |
-
-### Riesgos del Proyecto
-
-📂 **Matriz completa**: `documentacion/gestion_proyecto/cronograma/Cronograma_Desarrollo_RDA_Costo_Amortizable.md`
-
-#### Top 5 Riesgos Identificados
-
-| # | Riesgo | Probabilidad | Impacto | Mitigación |
-|---|--------|--------------|---------|------------|
-| 1 | Conectividad SQL inestable | Media | Alto | Implementar reintentos automáticos, validar VPN |
-| 2 | Macros VBA no ejecutan en PAD | Alta | Crítico | Probar en ambiente de desarrollo, alternativa Python |
-| 3 | Datos incompletos en fuente | Media | Alto | Query de completitud vía Linked Server |
-| 4 | Cambios en estructura BD | Baja | Alto | Monitoreo mensual, documentar esquema |
-| 5 | Licencias Power Automate | Baja | Medio | Validar disponibilidad, alternativa n8n |
-
-### Actas de Reunión
-
-📂 Ubicación: `documentacion/gestion_proyecto/actas_reunion/`
-
-**Formato de Acta**:
-```markdown
-# Acta de Reunión - Sprint X Review
-
-**Fecha**: DD/MM/YYYY
-**Hora**: HH:MM - HH:MM
-**Tipo**: Sprint Review
-**Asistentes**: 
-- Product Owner: [Nombre]
-- Scrum Master: [Nombre]
-- Desarrollador: [Nombre]
-- Usuario Final: [Nombre]
-
-## Temas Tratados
-1. Demo de historias completadas (HU-XX a HU-YY)
-2. Validación de funcionalidad
-3. Retroalimentación de usuario
-
-## Decisiones Tomadas
-- Aprobar HU-01 a HU-07 ✅
-- Ajustar formato de fecha en HU-07 (fecha transformación)
-- Agregar validación adicional en HU-03
-
-## Acciones de Seguimiento
-- [ ] Implementar ajuste HU-07 (Responsable: Dev, Fecha: DD/MM)
-- [ ] Validar con datos reales HU-03 (Responsable: Usuario, Fecha: DD/MM)
-
-## Próxima Reunión
-**Fecha**: DD/MM/YYYY
-**Tipo**: Sprint Planning - Sprint 2
-```
-
-### Seguimiento Semanal
-
-📂 Ubicación: `documentacion/gestion_proyecto/seguimiento/`
-
-**Reporte Semanal**:
-```markdown
-# Reporte Semanal - Semana X
-
-**Período**: DD/MM - DD/MM/YYYY
-**Sprint**: Sprint X
-
-## Resumen Ejecutivo
-- Horas trabajadas: XX/XX (XX%)
-- Historias completadas: X/X
-- Impedimentos: X
-
-## Progreso por Historia
-- HU-XX: 80% (en progreso)
-- HU-YY: 100% (completada) ✅
-- HU-ZZ: 0% (no iniciada)
-
-## Impedimentos
-1. Acceso a servidor SQL pendiente (Soporte TI)
-2. Validación de macro VBA requiere usuario final
-
-## Plan Próxima Semana
-- Completar HU-XX
-- Iniciar HU-ZZ
-- Sprint Review viernes XX/XX
-```
-
-## 👥 Equipo
-
-### Equipo del Proyecto
-
-| Rol | Nombre | Email | Responsabilidades |
-|-----|--------|-------|-------------------|
-| **Product Owner** | Coordinador de Riesgos | coordinador.riesgos@cajasocial.com | Definir requerimientos, aprobar entregas |
-| **Scrum Master / Líder Proyecto** | Líder RPA | lider.rpa@cajasocial.com | Facilitar proceso, gestionar proyecto |
-| **Desarrollador RPA Junior** | [Asignar] | dev.rpa@cajasocial.com | Implementar 21 historias de usuario |
-| **Usuario Final / SME** | Carol Patricia Campos González | carol.campos@cajasocial.com | Validar funcionalidad, proveer conocimiento |
-| **Analista Funcional** | Analista de Riesgos | analista.riesgos@cajasocial.com | Documentar procesos, validar lógica |
-| **Soporte Infraestructura** | Equipo TI | soporte.ti@cajasocial.com | Configurar accesos SQL, VPN, servidores |
-| **QA / Tester** | [Asignar] | qa.rpa@cajasocial.com | Ejecutar casos de prueba, validar calidad |
-
-### Matriz RACI
-
-| Actividad | Product Owner | Scrum Master | Dev RPA | Usuario Final | TI |
-|-----------|---------------|--------------|---------|---------------|-----|
-| Definir requerimientos | **R/A** | C | C | **R** | I |
-| Documentar HU | C | **R** | **A** | C | I |
-| Desarrollar automatización | I | C | **R/A** | C | C |
-| Configurar infraestructura | I | C | C | I | **R/A** |
-| Ejecutar pruebas | C | C | **R** | **A** | I |
-| Aprobar entregas | **A** | I | R | C | I |
-| Deploy a producción | **A** | **R** | C | I | C |
-
-**Leyenda**: R=Responsable, A=Aprobador, C=Consultado, I=Informado
-
-### Contactos de Soporte
-
-#### Soporte Técnico RPA
-- **Email**: soporte.rpa@cajasocial.com
-- **Teléfono**: Ext. XXXX
-- **Horario**: Lunes a Viernes 8:00 AM - 6:00 PM
-- **Escalamiento**: lider.rpa@cajasocial.com
-
-#### Soporte Infraestructura
-- **Email**: soporte.ti@cajasocial.com
-- **Teléfono**: Ext. XXXX
-- **Horario**: 24/7 (on-call para producción)
-- **Escalamiento**: gerencia.ti@cajasocial.com
-
-#### Soporte Funcional (Proceso de Negocio)
-- **Email**: riesgos@cajasocial.com
-- **Contacto**: Carol Patricia Campos González
-- **Horario**: Lunes a Viernes 8:00 AM - 5:00 PM
-
-### Canales de Comunicación
-
-| Canal | Uso | Frecuencia |
-|-------|-----|------------|
-| **Email** | Comunicación formal, entregas, aprobaciones | Según necesidad |
-| **Microsoft Teams** | Comunicación diaria, consultas rápidas | Diario |
-| **Reuniones Presenciales** | Sprint Planning, Review, Retrospective | Semanal/Quincenal |
-| **Jira / Azure DevOps** | Seguimiento de tareas, historias de usuario | Diario |
-| **Confluence / SharePoint** | Documentación centralizada | Según necesidad |
-
-### Horarios de Disponibilidad
-
-#### Ejecución del Bot (Producción)
-- **Frecuencia**: Mensual
-- **Día**: Último día hábil del mes
-- **Hora**: 08:00 AM (Inicio automático)
-- **Duración**: 15 minutos (PAD) o 8 minutos (n8n)
-- **Ventana de mantenimiento**: Primer domingo de cada mes, 2:00 AM - 6:00 AM
-
-#### Disponibilidad del Equipo
-- **Desarrollo**: Lunes a Viernes, 8:00 AM - 6:00 PM
-- **Soporte Producción**: Lunes a Viernes, 7:00 AM - 7:00 PM
-- **On-call (Emergencias)**: 24/7 solo para errores críticos de producción
-
-## 📄 Licencia
-
-Este proyecto es **propiedad exclusiva de Banco Caja Social** y es de uso interno únicamente.
-
-**Restricciones**:
-- ❌ Prohibida la distribución externa
-- ❌ Prohibida la modificación sin autorización
-- ❌ Prohibido el uso comercial fuera de la organización
-- ✅ Permitido el uso interno por personal autorizado
-
-**Confidencialidad**: Este repositorio contiene información confidencial y procesos críticos del negocio. Todos los colaboradores deben firmar acuerdo de confidencialidad (NDA).
-
-## 📞 Contacto
-
-### Soporte General
-- **Email Principal**: rda.costoamortizable@cajasocial.com
-- **Soporte RPA**: soporte.rpa@cajasocial.com
-- **Soporte Técnico TI**: soporte.ti@cajasocial.com
-
-### Escalamiento
-1. **Nivel 1**: Desarrollador RPA (dev.rpa@cajasocial.com)
-2. **Nivel 2**: Líder RPA (lider.rpa@cajasocial.com)
-3. **Nivel 3**: Coordinador de Riesgos (coordinador.riesgos@cajasocial.com)
-4. **Nivel 4**: Gerencia TI / Riesgos (solo para emergencias críticas)
-
-### Reportar Problemas
-Para reportar errores o solicitar mejoras, crear issue en GitHub:
-- https://github.com/Stiven9710/RDA_Costo_Amortizable/issues
-
-**Plantilla de Issue**:
-```markdown
-## Tipo
-- [ ] Error / Bug
-- [ ] Mejora / Enhancement
-- [ ] Pregunta / Consulta
-
-## Historia de Usuario Afectada
-HU-XX: [Nombre]
-
-## Descripción
-[Descripción detallada del problema o solicitud]
-
-## Pasos para Reproducir (si es error)
-1. ...
-2. ...
-3. ...
-
-## Comportamiento Esperado
-[Qué debería suceder]
-
-## Comportamiento Actual
-[Qué está sucediendo]
-
-## Screenshots/Logs
-[Adjuntar evidencia si aplica]
-
-## Prioridad
-- [ ] Crítica (Producción detenida)
-- [ ] Alta (Afecta múltiples usuarios)
-- [ ] Media (Impacto moderado)
-- [ ] Baja (Mejora cosmética)
-```
-
-## ❓ FAQ (Preguntas Frecuentes)
-
-### Generales
-
-**¿Qué hace este proceso?**
-Automatiza el cálculo mensual del Costo Amortizable, procesando reestructuraciones, modificaciones y retenciones de créditos para calcular pérdidas/ganancias financieras.
-
-**¿Cuánto tiempo tarda la ejecución?**
-- Power Automate Desktop: ~15 minutos
-- n8n: ~8 minutos
-- Proceso manual anterior: 14 horas
-
-**¿Con qué frecuencia se ejecuta?**
-Mensualmente, el último día hábil de cada mes, iniciando a las 8:00 AM.
-
-**¿Quién puede ejecutar el proceso?**
-- **Automático**: El bot se ejecuta sin intervención (programado)
-- **Manual**: Usuario autorizado con credenciales RPA
-
-### Técnicas
-
-**¿Qué pasa si el proceso falla?**
-- El sistema envía notificación por email al equipo de soporte
-- Se registra log detallado en `logs/errores/`
-- Se pueden ejecutar hasta 3 reintentos automáticos
-- Si persiste, requiere intervención manual
-
-**¿Cómo sé si el proceso se ejecutó correctamente?**
-- Recibirás notificación por email con resumen
-- Archivo `.xls` generado en `data/output/reportes/`
-- Datos cargados en tabla SQL `bd_costo_amortizable_MM_AAAA`
-- Log de ejecución sin errores críticos
-
-**¿Puedo ejecutar el proceso para meses anteriores?**
-Sí, configurando los parámetros `mes_proceso` y `anio_proceso` al ejecutar manualmente. Útil para reprocesos o validaciones.
-
-**¿Qué hacer si los datos están incompletos?**
-El proceso incluye HU-12 que valida completitud y ejecuta query vía Linked Server para completar información faltante. Si aún falta data, se documenta en log y notifica.
-
-**¿Cómo actualizo credenciales SQL?**
-Editar archivo `.env` en `config/credenciales/` o actualizar Windows Credential Manager (PAD). Requiere reinicio del servicio.
-
-### Operacionales
-
-**¿Qué archivos genera el proceso?**
-- `Consolidacion_Costo_Amortizable_MM_AAAA.xlsx`: Consolidación detallada
-- `BASE_FINAL_MM_AAAA.xlsx`: Hoja consolidada final
-- `COSTO_AMORTIZABLE_MM_AAAA.xls`: Archivo de entrega (Excel 97-2003)
-- `proceso_MM_AAAA.log`: Log de ejecución
-
-**¿Dónde encuentro reportes de meses anteriores?**
-- **Archivos**: `data/output/reportes/archivo_historico/`
-- **SQL**: Tablas `bd_costo_amortizable_01_2025`, `bd_costo_amortizable_02_2025`, etc.
-- **Logs**: `logs/ejecuciones/` organizados por fecha
-
-**¿Puedo modificar el formato del reporte?**
-Sí, editando la plantilla en `data/input/plantillas/Plantilla_Consolidacion_vMM_AAAA.xlsx`. Requiere actualizar HU-17 y HU-19, y ejecutar pruebas completas.
-
-**¿Cómo agrego un destinatario de email?**
-Editar `config/parametros/configuracion_proceso.json`, agregar email en array `destinatarios_reporte`, y reiniciar servicio.
-
-### Desarrollo
-
-**¿Cómo agrego una nueva historia de usuario?**
-1. Crear archivo `HU##_Nombre_Descriptivo.md` en `documentacion/funcional/historias_usuario/backlog/`
-2. Seguir plantilla corporativa de `Plantilla_Historia_Usuario_v2.md`
-3. Actualizar `Indice_Maestro_Historias_Usuario.md`
-4. Estimar esfuerzo y agregar a cronograma
-5. Crear feature branch y desarrollar
-6. Ejecutar pruebas y crear PR
-
-**¿Qué hacer si necesito cambiar un query SQL?**
-1. Editar query en `scripts/sql/`
-2. Validar sintaxis en SSMS
-3. Probar con datos de prueba
-4. Actualizar documentación de HU correspondiente
-5. Ejecutar suite de pruebas de regresión
-6. Documentar cambio en PR
-
-**¿Cómo depuro errores en PAD?**
-- Activar modo debug en Power Automate Desktop (F5 para paso a paso)
-- Revisar logs en tiempo real: `logs/ejecuciones/`
-- Agregar acciones "Log message" en puntos críticos
-- Usar "Display message" para inspeccionar variables
-
-**¿Puedo usar n8n en lugar de PAD?**
-Sí, ambas opciones están documentadas. n8n es 47% más rápido (8 min vs 15 min) y no requiere licencias, pero necesita configuración de conectividad Azure↔On-Premise. Ver `documentacion/tecnica/Requisitos_Infraestructura_n8n.md`.
-
-## 🚀 Próximos Pasos
-
-### Roadmap del Proyecto
-
-#### Q4 2025 - Release v1.0 (ACTUAL)
-- ✅ Documentación de 21 historias de usuario completada
-- ✅ Cronograma de desarrollo definido
-- ✅ Diagramas de proceso finalizados
-- 🔄 **EN PROGRESO**: Desarrollo Sprint 1 (Extracción y Consolidación)
-
-#### Q1 2026 - Release v1.1
-- 🔜 Completar desarrollo de 21 HU
-- 🔜 Pruebas de integración y UAT
-- 🔜 Deploy a producción
-- � Capacitación a usuarios
-- 🔜 Monitoreo primer mes
-
-#### Q2 2026 - Release v1.2 (Mejoras)
-- 🔮 Dashboard de métricas en tiempo real (Power BI)
-- 🔮 Alertas proactivas por WhatsApp/Teams
-- 🔮 Integración con sistema de auditoría
-- 🔮 Backup automático en la nube
-
-#### Q3 2026 - Release v2.0 (Evolución)
-- 🔮 Migración a n8n en Azure Cloud
-- 🔮 Paralelización de procesos (8 min → 5 min)
-- 🔮 API REST para consultas externas
-- 🔮 Machine Learning para detección de anomalías
-
-### Backlog de Mejoras
-
-📂 `documentacion/funcional/historias_usuario/backlog/`
-
-**Alta Prioridad**:
-- HU-22: Integración con sistema de notificaciones corporativo
-- HU-23: Generación automática de gráficos ejecutivos
-- HU-24: Validación cruzada con sistema contable
-
-**Media Prioridad**:
-- HU-25: Dashboard de monitoreo en tiempo real
-- HU-26: Exportación a múltiples formatos (PDF, CSV, JSON)
-- HU-27: Historial de cambios y auditoría completa
-
-**Baja Prioridad**:
-- HU-28: Modo simulación para escenarios What-If
-- HU-29: Integración con chatbot de consultas
-- HU-30: App móvil para aprobaciones
-
-### Contribuir al Roadmap
-
-Si tienes ideas para mejorar el proceso:
-1. Crear issue en GitHub con etiqueta "enhancement"
-2. Proponer en Sprint Retrospective
-3. Discutir con Product Owner
-4. Agregar a backlog si se aprueba
+### Troubleshooting Común
+
+| Síntoma | Causa Probable | Solución |
+|---------|----------------|----------|
+| Timeout SQL | Carga alta en servidor | Ejecutar en horario alternativo |
+| Macro VBA falla | Excel cerrado inesperadamente | Verificar procesos Excel activos |
+| Datos incompletos | Linked Server inactivo | Validar conectividad a servidor remoto |
+| Hash no coincide | Archivo modificado manualmente | Regenerar archivo desde proceso |
+| Notificaciones no llegan | Credenciales SMTP incorrectas | Reconfigurar credenciales email |
 
 ---
 
-## 📚 Referencias y Enlaces
+## 🤝 Gestión del Proyecto
 
-### Documentación Interna
-- [Índice Maestro de Historias de Usuario](documentacion/funcional/historias_usuario/Indice_Maestro_Historias_Usuario.md)
-- [PDD Completo](documentacion/funcional/pdd/PDD_RDA_Costo_Amortizable_v1.0.md)
-- [Cronograma de Desarrollo](documentacion/gestion_proyecto/cronograma/Cronograma_Desarrollo_RDA_Costo_Amortizable.md)
-- [Requisitos PAD](documentacion/tecnica/Requisitos_Infraestructura_PAD.md)
-- [Requisitos n8n](documentacion/tecnica/Requisitos_Infraestructura_n8n.md)
+### Metodología Ágil
 
-### Recursos Externos
-- [Power Automate Desktop - Documentación Oficial](https://docs.microsoft.com/power-automate/desktop-flows/)
-- [n8n - Documentación](https://docs.n8n.io/)
-- [SQL Server - Best Practices](https://docs.microsoft.com/sql/sql-server/)
-- [Git Flow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)
+- **Duración**: 7 semanas
+- **Sprints**: 4 sprints de 1-2 semanas
+- **Esfuerzo estimado**: 165.5 horas
+- **Recurso**: 1 Desarrollador Junior PAD
 
-### Repositorio GitHub
-- **URL**: https://github.com/Stiven9710/RDA_Costo_Amortizable
-- **Branch Principal**: `main` (producción)
-- **Branch Desarrollo**: `develop` (integración)
-- **Issues**: https://github.com/Stiven9710/RDA_Costo_Amortizable/issues
-- **Releases**: https://github.com/Stiven9710/RDA_Costo_Amortizable/releases
+### Roles y Responsabilidades
+
+| Rol | Responsable | Contacto |
+|-----|-------------|----------|
+| **Product Owner** | Coordinador de Riesgos | coordinador.riesgos@fgs.co |
+| **Desarrollador RPA** | Ronald Estiven Rios | rriosh@fgs.co |
+| **Especialista RPA** | Jeimy Johana Lozano | jelozanog@fgs.co |
+| **Usuario Final** | Carol Patricia Campos | ccamposg@fgs.co |
+
+### Control de Cambios
+
+Cualquier cambio de alcance requiere:
+1. Solicitud documentada
+2. Evaluación de impacto
+3. Aprobación de Product Owner
+4. Actualización de documentación
+
+---
+
+## 📞 Contacto y Soporte
+
+### Canales de Soporte
+
+| Tipo | Contacto | Horario |
+|------|----------|---------|
+| **Soporte RPA** | soporte.rpa@cajasocial.com | Lun-Vie 8:00 AM - 6:00 PM |
+| **Soporte TI** | soporte.ti@cajasocial.com | 24/7 (on-call producción) |
+| **Soporte Funcional** | riesgos@cajasocial.com | Lun-Vie 8:00 AM - 5:00 PM |
+
+### Reportar Problemas
+
+**GitHub Issues**: https://github.com/Stiven9710/RDA_Costo_Amortizable/issues
+
+**Escalamiento**:
+1. Nivel 1: Desarrollador RPA
+2. Nivel 2: Líder RPA
+3. Nivel 3: Coordinador de Riesgos
+4. Nivel 4: Gerencia TI (emergencias)
+
+---
+
+## 📄 Licencia
+
+**Propiedad exclusiva de Banco Caja Social** - Uso interno únicamente.
+
+**Restricciones**:
+- ❌ Prohibida distribución externa
+- ❌ Prohibida modificación sin autorización
+- ✅ Permitido uso interno por personal autorizado
+
+**Confidencialidad**: Información confidencial y procesos críticos del negocio. Requiere NDA.
 
 ---
 
@@ -1619,9 +829,39 @@ Si tienes ideas para mejorar el proceso:
 *Automatización que transforma 14 horas de trabajo manual en 15 minutos de ejecución inteligente*
 
 📅 **Última actualización**: Noviembre 2025  
-📌 **Versión**: 1.0.0  
-✅ **Estado**: Documentación Completa - Listo para Desarrollo
+📌 **Versión**: 1.0.0-dev  
+✅ **Estado**: En Desarrollo
 
 **[⬆ Volver arriba](#rda-costo-amortizable---automatización-rpa)**
 
 </div>
+
+---
+
+## 📞 Contacto
+
+**Responsable Funcional**: Carol Patricia Campos González (ccamposg@fgs.co)  
+**Coordinador de Riesgos**: coordinador.riesgos@fgs.co  
+**Soporte RPA**: soporte.rpa@cajasocial.com | soporte.ti@cajasocial.com
+
+**Documentación completa**: Ver PDD y HU en `documentacion/funcional/`  
+**Repositorio**: https://github.com/Stiven9710/RDA_Costo_Amortizable (branch: feature/ronald)
+
+---
+
+## 📄 Licencia
+
+**Propiedad exclusiva de Banco Caja Social** - Uso interno únicamente. Información confidencial.
+
+---
+
+<div align="center">
+
+**RDA Costo Amortizable - Banco Caja Social**
+
+*Automatización que transforma 14 horas de trabajo manual en 15 minutos*
+
+📅 Última actualización: Noviembre 2025 | 📌 Versión: 1.0.0 | ✅ Estado: En Desarrollo
+
+</div>
+
