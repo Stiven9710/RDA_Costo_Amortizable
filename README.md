@@ -1,9 +1,11 @@
 # RDA Costo Amortizable - Automatización RPA
 
 ![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow)
+![Modo](https://img.shields.io/badge/Modo-Atendido%20(RDA)-blue)
 ![Progreso](https://img.shields.io/badge/Historias%20de%20Usuario-14%2F14-brightgreen)
-![Reducción](https://img.shields.io/badge/Reducción%20Tiempo-95%25-orange)
-![Frecuencia](https://img.shields.io/badge/Frecuencia-Mensual-blue)
+![Arquitectura](https://img.shields.io/badge/Arquitectura-40%25-orange)
+![Reducción](https://img.shields.io/badge/Reducción%20Tiempo-95%25-red)
+![Duración](https://img.shields.io/badge/Duración-15%20min-green)
 
 ## 📋 Resumen Ejecutivo
 
@@ -232,33 +234,101 @@ RDA_Costo_Amortizable/
 
 ## 🚀 Tecnologías Utilizadas
 
-### Opción 1: Power Automate Desktop (PAD)
-- **Orquestador RPA**: Power Automate Desktop v2.30+
-- **Excel**: Microsoft Excel 2016+ con macros VBA
-- **SQL Server**: 2016+ (DWH_CC y DWH_Riesgos_Credito)
-- **Scripts**: Python 3.8+ (pandas, pyodbc, openpyxl)
-- **SO**: Windows 10/11
+### Stack Tecnológico Principal
+- **Plataforma RPA**: Power Automate Desktop v2.30+ (modo **Atendido**)
+- **Integración**: Python 3.8+ (pandas, pyodbc, openpyxl, python-dotenv)
+- **Bases de datos**: SQL Server 2016+ 
+  - DWH_CC (10.1.3.101\SCC)
+  - DWH_Riesgos_Credito (10.1.5.172\RIESGOS)
+- **Automatización Office**: Microsoft Excel 2016+ con macros VBA
+- **Sistema Operativo**: Windows 10/11 Pro (64-bit)
+- **Control de versiones**: Git + GitHub
+- **Documentación**: Markdown
 - **Tiempo ejecución**: ~15 minutos
 
-### Opción 2: n8n (Cloud-Ready)
-- **Orquestador**: n8n v1.x (open source)
-- **Runtime**: Node.js 18.x
-- **Scripts**: Python 3.9+ (pandas, numpy, openpyxl, pyodbc)
-- **Contenedor**: Docker (opcional)
-- **SO**: Linux/macOS/Windows
-- **Tiempo ejecución**: ~8 minutos (47% más rápido)
+### Arquitectura
+- **Patrón de diseño**: Alta cohesión, bajo acoplamiento
+- **Tipo**: Modular con 21 subflows organizados por funcionalidad
+- **Orquestador**: Main.xaml (carga config JSON, invoca componentes en secuencia)
+- **Configuración**: Archivos JSON (Maestro + Máquina)
 
-### Stack Común
-- **Bases de datos**: SQL Server (10.1.3.101\SCC, 10.1.5.172\RIESGOS)
-- **Archivos**: Excel .xlsx y .xls (97-2003) con macros VBA
-- **Control versiones**: Git
-- **Documentación**: Markdown
+## 🏗️ Arquitectura Técnica (NUEVO)
+
+El documento de **Diseño de Arquitectura RDA** proporciona una vista técnica completa del sistema:
+
+### Componentes Principales
+
+```
+┌─────────────────────────────────────────────────┐
+│           ARQUITECTURA DE 5 CAPAS               │
+├─────────────────────────────────────────────────┤
+│ 1. PRESENTACIÓN                                 │
+│    • PAD UI (desarrollo)                        │
+│    • Logs en consola                            │
+│    • Notificaciones email                       │
+├─────────────────────────────────────────────────┤
+│ 2. ORQUESTACIÓN                                 │
+│    • Main.xaml (orquestador)                    │
+│    • Carga configuración JSON                   │
+│    • Manejo de errores global                   │
+├─────────────────────────────────────────────────┤
+│ 3. COMPONENTES PAD (21 subflows)                │
+│    • 01_SQL_Extraccion                          │
+│    • 02_Excel_Preparacion                       │
+│    • 03-07_Consolidacion                        │
+│    • 08-10_Organizacion                         │
+│    • 11_SQL_Cargue                              │
+│    • 12-14_Validaciones_Calculos                │
+│    • 15-16_Python_VBA                           │
+│    • 17-21_Reporte_Final                        │
+├─────────────────────────────────────────────────┤
+│ 4. INTEGRACIÓN                                  │
+│    • SQL_Connector (pyodbc)                     │
+│    • Excel_Handler (COM Interop)                │
+│    • Python_Runner (subprocess)                 │
+│    • File_Manager (UNC paths)                   │
+│    • Email_Sender (SMTP)                        │
+├─────────────────────────────────────────────────┤
+│ 5. DATOS                                        │
+│    • DWH_CC (10.1.3.101\SCC)                    │
+│    • DWH_Riesgos_Credito (10.1.5.172\RIESGOS)   │
+│    • Servidor Archivos                          │
+│    • Azure Key Vault                            │
+└─────────────────────────────────────────────────┘
+```
+
+### Puntos de Control Críticos
+
+El proceso incluye **7 puntos de control (PC)** para garantizar calidad:
+
+- **PC01**: Validación configuración JSON
+- **PC02**: Conectividad SQL Server
+- **PC03**: Existencia de plantillas Excel
+- **PC04**: Completitud de datos extraídos
+- **PC05**: Validación de cargue SQL
+- **PC06**: Ejecución correcta de macros VBA
+- **PC07**: Integridad archivo final (hash SHA-256)
+
+### Distribución Temporal (15 minutos)
+
+| Fase | Componentes | Tiempo | % |
+|------|-------------|--------|---|
+| Extracción SQL | 01 | 2 min | 13% |
+| Consolidación Excel | 02-07 | 4 min | 27% |
+| Organización y Cargue | 08-11 | 2 min | 13% |
+| Validaciones y Cálculos | 12-14 | 3 min | 20% |
+| Python y VBA | 15-16 | 2 min | 13% |
+| Reporte y Notificación | 17-21 | 2 min | 13% |
+
+> 📘 **Ver documentación completa**: `documentacion/tecnica/Diseno_Arquitectura_RDA_Costo_Amortizable.md`
+
+---
 
 ## 📊 Historias de Usuario Funcionales
 
 ### Resumen del Backlog (14 HU)
 
-El proceso se divide en **14 historias de usuario funcionales** agnósticas a la tecnología:
+El proceso se divide en **14 historias de usuario funcionales** implementadas:
 
 | # | Historia | Descripción | Complejidad |
 |---|----------|-------------|-------------|
@@ -460,10 +530,11 @@ Ejecutar validación de sintaxis en SSMS antes del primer uso.
 ## 📖 Ejecución del Proceso
 
 ### Frecuencia y Horario
-- **Frecuencia**: Mensual (último día hábil del mes)
-- **Horario**: 08:00 AM (ejecución desatendida)
-- **Duración**: ~15 minutos (PAD) u 8 minutos (n8n)
-- **Tipo**: Asistente (sin intervención humana)
+- **Frecuencia**: Mensual (último día hábil del mes) o **a disposición del usuario**
+- **Horario**: Recomendado 08:00 AM
+- **Duración**: ~15 minutos
+- **Modo**: **RDA - Remote Desktop Automation (Atendido)**
+- **Tipo**: El usuario inicia el proceso cuando lo requiera
 
 ### Archivos Generados
 
@@ -505,35 +576,73 @@ Acción: Requiere intervención manual
 
 | Documento | Descripción | Ubicación |
 |-----------|-------------|-----------|
-| 📖 **PDD v1.0** | Process Design Document (89 págs) | `documentacion/funcional/pdd/PDD_RDA_Costo_Amortizable_v1.0.md` |
-| 📋 **Historias de Usuario** | 14 HU funcionales agnósticas | `documentacion/funcional/historias_usuario/backlog/` |
+| 📖 **PDD v1.0** | Process Design Document completo | `documentacion/funcional/pdd/PDD_RDA_Costo_Amortizable_v1.0.md` |
+| 🏗️ **Diseño de Arquitectura** | Arquitectura técnica RDA (40% completado) | `documentacion/tecnica/Diseno_Arquitectura_RDA_Costo_Amortizable.md` |
+| 📋 **Historias de Usuario** | 14 HU funcionales implementadas | `documentacion/funcional/historias_usuario/en_progreso/` |
+| � **Índice de HU** | Vista general de las 21 HU | `documentacion/funcional/historias_usuario/Indice_Maestro_Historias_Usuario.md` |
 | 🔧 **Setup PAD** | Requisitos Power Automate Desktop | `documentacion/tecnica/Requisitos_Infraestructura_PAD.md` |
-| ☁️ **Setup n8n** | Requisitos n8n Cloud-Ready | `documentacion/tecnica/Requisitos_Infraestructura_n8n.md` |
-| 📊 **Diagramas BPMN** | AS-IS y TO-BE visuales | `documentacion/tecnica/diagramas/` |
-| 🗓️ **Cronograma** | Plan de desarrollo | `documentacion/gestion_proyecto/cronograma/` |
+| 📊 **Diagramas BPMN** | Flujos AS-IS y TO-BE | `documentacion/tecnica/diagramas/bpmn/` |
+| 🗓️ **Cronograma** | Plan de desarrollo 7 semanas (165.5h) | `documentacion/gestion_proyecto/cronograma/Cronograma_Desarrollo_RDA_Costo_Amortizable.md` |
 
 ### Estructura de Documentación
 
 ```
 documentacion/
 ├── funcional/                   # Documentación de negocio
-│   ├── pdd/                    # Process Design Document
-│   ├── historias_usuario/      # 14 HU + backlog
+│   ├── pdd/                    # Process Design Document v1.0
+│   ├── historias_usuario/      # 14 HU implementadas en en_progreso/
+│   │   ├── Indice_Maestro_Historias_Usuario.md
+│   │   ├── Resumen_Avance_HU.md
+│   │   └── en_progreso/        # HU01-HU14 (completadas)
+│   ├── casos_uso/
+│   ├── requerimientos/
 │   └── insumos/                # Plantillas y referencias
+│       └── referencias/        # Diseño LyD (plantilla base)
 ├── tecnica/                     # Documentación técnica
-│   ├── diagramas/              # BPMN AS-IS y TO-BE
-│   ├── Requisitos_*.md         # Setup PAD y n8n
+│   ├── Diseno_Arquitectura_RDA_Costo_Amortizable.md  # ⭐ NUEVO
+│   ├── diagramas/              # BPMN AS-IS y TO-BE + Drawio
+│   ├── Requisitos_Infraestructura_PAD.md
+│   ├── Requisitos_Infraestructura_n8n.md
 │   └── Resumen_Funcional_n8n.md
 └── gestion_proyecto/            # Gestión del proyecto
-    └── cronograma/             # Planificación desarrollo
-```
-    │   ├── Cronograma_Desarrollo_RDA_Costo_Amortizable.md
-    │   └── Cronograma RDA Costo Amortizable.xlsx
+    ├── cronograma/             # Planificación 7 semanas
     ├── actas_reunion/
     └── seguimiento/
 ```
 
-### Acceso Rápido a Documentación Clave
+### Documentación Técnica Destacada
+
+#### 🏗️ Diseño de Arquitectura RDA (NUEVO - 900+ líneas)
+**Ubicación**: `documentacion/tecnica/Diseno_Arquitectura_RDA_Costo_Amortizable.md`
+
+**Contenido completado (40%):**
+- ✅ Vista de contexto del sistema
+- ✅ Arquitectura de 5 capas (Presentación, Orquestación, Componentes, Integración, Datos)
+- ✅ Componentes modulares del asistente (21 subflows)
+- ✅ Diagrama de secuencia temporal (15 min breakdown)
+- ✅ Flujo de decisiones críticas (7 puntos de control)
+- ✅ Prerrequisitos por categoría (8 componentes)
+- ✅ Alcance detallado (14 HU con complejidad)
+- ✅ Reducción de tiempos documentada (95%)
+
+**Diagramas incluidos** (ASCII art):
+1. Diagrama de Vista de Contexto
+2. Diagrama de Componentes del Sistema
+3. Diagrama de Componentes del Asistente
+4. Diagrama de Secuencia
+5. Flujo de Decisiones Críticas
+
+**Pendiente de completar (60%)**:
+- Arquitectura Empresarial (Licenciamiento, Implementación RPA)
+- Plantillas y Archivos de Trabajo
+- Integración con Python (scripts auxiliares)
+- Manejo de Errores y Estrategia de Reintentos
+- Volumetrías estimadas del proceso
+- Dimensionamiento (Hardware, Licenciamiento, Software)
+- Monitoreo y Logs
+- Control de Versiones
+
+#### Otros Documentos Técnicos
 
 | Documento | Ubicación | Propósito |
 |-----------|-----------|-----------|
@@ -542,7 +651,6 @@ documentacion/
 | 📖 **PDD** | `documentacion/funcional/pdd/PDD_RDA_Costo_Amortizable_v1.0.md` | Diseño completo del proceso |
 | 🏗️ **Diagramas BPMN** | `documentacion/tecnica/diagramas/bpmn/` | Flujos visuales del proceso |
 | 🔧 **Setup PAD** | `documentacion/tecnica/Requisitos_Infraestructura_PAD.md` | Guía de configuración PAD |
-| ☁️ **Setup n8n** | `documentacion/tecnica/Requisitos_Infraestructura_n8n.md` | Guía de configuración n8n |
 
 ## 🧪 Testing y Validación
 
@@ -766,16 +874,34 @@ Contacto: soporte.rpa@cajasocial.com
 - **Duración**: 7 semanas
 - **Sprints**: 4 sprints de 1-2 semanas
 - **Esfuerzo estimado**: 165.5 horas
-- **Recurso**: 1 Desarrollador Junior PAD
+- **Recurso**: 1 Desarrollador RPA
+
+### Planificación de Sprints
+
+| Sprint | Duración | HU Incluidas | Esfuerzo |
+|--------|----------|--------------|----------|
+| **Sprint 1** | 2 semanas | HU-01 a HU-07 (Extracción y Consolidación) | 48h |
+| **Sprint 2** | 1.5 semanas | HU-08 a HU-11 (Organización y Cargue SQL) | 32.5h |
+| **Sprint 3** | 2 semanas | HU-12 a HU-16 (Validaciones y Cálculos) | 50h |
+| **Sprint 4** | 1.5 semanas | HU-17 a HU-21 (Formato de Entrega) | 35h |
 
 ### Roles y Responsabilidades
 
 | Rol | Responsable | Contacto |
 |-----|-------------|----------|
 | **Product Owner** | Coordinador de Riesgos | coordinador.riesgos@fgs.co |
+| **Scrum Master** | Líder RPA | lider.rpa@cajasocial.com |
 | **Desarrollador RPA** | Ronald Estiven Rios | rriosh@fgs.co |
 | **Especialista RPA** | Jeimy Johana Lozano | jelozanog@fgs.co |
-| **Usuario Final** | Carol Patricia Campos | ccamposg@fgs.co |
+| **Usuario Funcional** | Carol Patricia Campos | ccamposg@fgs.co |
+| **Arquitecto TI** | Arquitecto de Solución | arquitecto.ti@cajasocial.com |
+
+### Estado Actual del Proyecto
+
+- ✅ **Documentación funcional**: 100% completada (PDD + 14 HU)
+- 🔄 **Documentación técnica**: 40% completada (Arquitectura en progreso)
+- ⏳ **Desarrollo PAD**: Por iniciar (Sprint 1 planificado)
+- ⏳ **Testing**: Por definir (Sprint 4)
 
 ### Control de Cambios
 
@@ -844,8 +970,17 @@ Cualquier cambio de alcance requiere:
 **Coordinador de Riesgos**: coordinador.riesgos@fgs.co  
 **Soporte RPA**: soporte.rpa@cajasocial.com | soporte.ti@cajasocial.com
 
-**Documentación completa**: Ver PDD y HU en `documentacion/funcional/`  
-**Repositorio**: https://github.com/Stiven9710/RDA_Costo_Amortizable (branch: feature/ronald)
+**Documentación completa**: Ver PDD, Arquitectura Técnica y 14 HU en `documentacion/`  
+**Repositorio**: https://github.com/Stiven9710/RDA_Costo_Amortizable  
+**Rama principal**: `main` | **Rama de desarrollo**: `feature/ronald`
+
+### Historial de Versiones
+
+| Versión | Fecha | Cambios Principales |
+|---------|-------|-------------------|
+| **v1.0.0-dev** | Nov 2025 | Documentación completa (PDD + 14 HU + Arquitectura 40%) |
+| **v0.2.0-alpha** | Nov 2025 | Estructura de proyecto + Diagramas BPMN |
+| **v0.1.0-alpha** | Oct 2025 | Análisis inicial y levantamiento de requerimientos |
 
 ---
 
@@ -859,9 +994,18 @@ Cualquier cambio de alcance requiere:
 
 **RDA Costo Amortizable - Banco Caja Social**
 
-*Automatización que transforma 14 horas de trabajo manual en 15 minutos*
+*Automatización RDA (Remote Desktop Automation) que transforma 14 horas en 15 minutos*
 
-📅 Última actualización: Noviembre 2025 | 📌 Versión: 1.0.0 | ✅ Estado: En Desarrollo
+📅 **Última actualización**: 28 de noviembre de 2025  
+📌 **Versión**: 1.0.0-dev  
+✅ **Estado**: En Desarrollo (Fase de Documentación - 70% completado)  
+🏗️ **Arquitectura**: Modo Atendido (Attended) - Usuario inicia el proceso
+
+**Progreso del Proyecto:**
+- ✅ Documentación Funcional: 100%
+- 🔄 Documentación Técnica: 40%
+- ⏳ Desarrollo: 0%
+- ⏳ Testing: 0%
 
 </div>
 
