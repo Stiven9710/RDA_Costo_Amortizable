@@ -142,8 +142,10 @@ Configuración de archivos de log del proceso.
 - `rutaLogPython`: Ruta completa
 
 **Nota sobre nomenclatura:**
-- `SSSIIIIIII`: Prefijo del sistema (9 caracteres)
-- `YYYYMMDD`: Fecha en formato año-mes-día
+- `SSSIIIIIII`: Prefijo del sistema (9 caracteres) - **Placeholder que debe reemplazarse**
+  - Ejemplo recomendado: `COSTOAMRT` (Costo Amortizable) + número de versión
+  - Ejemplo final: `COSTOAMRT_LOG_DE_SISTEMA_20251225.csv`
+- `YYYYMMDD`: Fecha en formato año-mes-día (se reemplaza dinámicamente en PAD)
 
 **Ejemplo de uso en PAD:**
 ```vbnet
@@ -827,6 +829,19 @@ Luego en PAD:
 ```vbnet
 SET NuevaConfig TO ConfigMaquina['configuracion']['nuevaSeccion']
 ```
+
+### ¿Qué significa "SSSIIIIIII" en los nombres de archivos?
+
+Es un **placeholder de 9 caracteres** que debe reemplazarse con el identificador del sistema. 
+
+**Recomendación para Costo Amortizable:**
+- Usar: `COSTOAMRT` (9 caracteres)
+- Ejemplo: `COSTOAMRT_LOG_DE_SISTEMA_20251225.csv`
+
+**Cómo actualizarlo:**
+1. Buscar y reemplazar todas las ocurrencias de `SSSIIIIIII` en `Configuracion_Maquina.json`
+2. Usar un prefijo descriptivo de máximo 9 caracteres
+3. Mantener la consistencia en logs, capturas y reportes
 
 ### ¿Cómo manejo diferentes configuraciones por ambiente?
 
