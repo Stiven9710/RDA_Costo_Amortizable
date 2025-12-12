@@ -1,0 +1,76 @@
+@REGION Main - RDA Costo Amortizable
+@# Flujo orquestador principal del RDA Costo Amortizable
+@# Coordina la ejecución completa del proceso automatizado
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK Main
+    @# Inicialización de objetos JSON globales
+    SET gblObjVariablesGenerales TO {"nombreAsistente": "RDA_CP_Costo_Amortizable", "subflujo": "", "aplicacionIntervenida": "", "estadoProceso": "False", "estadoSistema": "False", "estadoProcesoFuncion": "False", "estadoSistemaFuncion": "False", "observaciones": "", "observacionesFuncion": "", "tipoCapturaPantalla": "Proceso", "nombreImagenCaptura": "", "listaRutasCapturasPantalla": ""}
+    SET gblObjFormatoFechaHora TO {"formatoFecha": "dd/MM/yyyy", "formatoHora": "HH:mm:ss", "fecha": "", "hora": ""}
+    SET gblObjReporteGestion TO {}
+    SET gblStrNumeroUnicoProceso TO ""
+    SET listaRutasCapturasPantalla TO []
+    
+    @# Control de errores global
+    ON BLOCK ERROR
+        @# Registro en log sistema
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR GLOBAL: %LastError%"
+        
+        @# Captura de pantalla de error
+        SET gblObjVariablesGenerales.tipoCapturaPantalla TO "Error"
+        CALL [Funcion]-CapturaPantalla
+        
+        @# Envío de correo de error crítico (PCC)
+        SET tipoNotificacion TO "PCC"
+        CALL [Funcion]-EnvioNotificacion tipoNotificacion: tipoNotificacion
+        
+        @# Log de auditoría final
+        Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "FIN PROCESO CON ERROR CRÍTICO,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,%gblObjVariablesGenerales.observaciones%"
+        
+        THROW ERROR "Proceso abortado por error crítico"
+    END
+    
+    @REGION Secuencia de Invocación de Subflujos
+        @# 1. Configuración inicial
+        SET gblObjVariablesGenerales.subflujo TO "Configuracion"
+        CALL [Configuracion]-Configuracion
+        
+        @# Validar éxito de configuración
+        IF gblObjVariablesGenerales.estadoProceso = "False" THEN
+            THROW ERROR "Error en configuración inicial"
+        END
+        
+        @# 2. Notificación de INICIO
+        CALL [Funcion]-FormatearFechaHora
+        SET tipoNotificacion TO "INICIO"
+        CALL [Funcion]-EnvioNotificacion tipoNotificacion: tipoNotificacion
+        
+        @# 3. Invocación de Maestra de Gestión (coordina subflujos de negocio CAPA 01-09)
+        SET gblObjVariablesGenerales.subflujo TO "MaestraGestion"
+        CALL [Maestra]-MaestraGestion
+        
+        @# Validar éxito de proceso de negocio
+        IF gblObjVariablesGenerales.estadoProceso = "False" THEN
+            THROW ERROR "Error en proceso de negocio"
+        END
+        
+        @# 4. Notificación con LOGS y REPORTE
+        SET tipoNotificacion TO "LOGS y REPORTE"
+        CALL [Funcion]-EnvioNotificacion tipoNotificacion: tipoNotificacion
+        
+        @# 5. Depuración mensual de carpetas
+        SET gblObjVariablesGenerales.subflujo TO "DepuracionCarpetas"
+        CALL [Configuracion]-DepuracionCarpetas
+        
+        @# 6. Notificación de FIN exitoso
+        CALL [Funcion]-FormatearFechaHora
+        SET tipoNotificacion TO "FIN"
+        CALL [Funcion]-EnvioNotificacion tipoNotificacion: tipoNotificacion
+        
+        @# Log de auditoría final exitoso
+        Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "FIN PROCESO EXITOSO,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,Proceso completado sin errores"
+    @ENDREGION
+    
+END
+@ENDREGION

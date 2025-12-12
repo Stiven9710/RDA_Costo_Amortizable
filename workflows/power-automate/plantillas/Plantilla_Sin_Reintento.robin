@@ -1,0 +1,73 @@
+@REGION Plantilla_Sin_Reintento
+@# Plantilla de subflujo sin lógica de reintentos
+@# Utilizar esta plantilla para procesos que no requieren reintentos
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK SubflujoSinReintento
+    @# Inicialización de variables
+    SET gblObjVariablesGenerales.estadoProceso TO "True"
+    SET gblObjVariablesGenerales.estadoSistema TO "True"
+    
+    @# Control de errores único
+    ON BLOCK ERROR
+        @# Registrar error
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [SubflujoSinReintento]: %LastError%"
+        
+        @# Capturar pantalla del error
+        SET gblObjVariablesGenerales.tipoCapturaPantalla TO "Error"
+        CALL [Funcion]-CapturaPantalla
+        
+        @# Marcar como error
+        SET gblObjVariablesGenerales.estadoProceso TO "False"
+        SET gblObjVariablesGenerales.estadoSistema TO "False"
+        SET gblObjVariablesGenerales.observaciones TO "Error en SubflujoSinReintento: %LastError%"
+        
+        @# Enviar correo PCNC inmediato
+        SET tipoNotificacion TO "PCNC"
+        CALL [Funcion]-EnvioNotificacion tipoNotificacion: tipoNotificacion
+        
+        @# Salir del bloque
+        EXIT BLOCK
+    END
+    
+    @REGION Proceso Principal
+        @# ================================================
+        @# PLACEHOLDER: Insertar lógica del proceso aquí
+        @# ================================================
+        
+        @# Ejemplo de proceso:
+        @# 1. Validar condiciones previas
+        @# 2. Ejecutar operación principal
+        @# 3. Validar resultado
+        
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [SubflujoSinReintento]: Ejecutando proceso..."
+        
+        @# Simulación de proceso exitoso
+        SET resultadoProceso TO "EXITOSO"
+        
+        @# ================================================
+        @# FIN PLACEHOLDER
+        @# ================================================
+    @ENDREGION
+    
+    @# Si llegamos aquí, el proceso fue exitoso
+    Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [SubflujoSinReintento]: Proceso completado exitosamente"
+    
+    @# Marcar estado como exitoso
+    SET gblObjVariablesGenerales.estadoProceso TO "True"
+    SET gblObjVariablesGenerales.observaciones TO "Proceso completado exitosamente"
+    
+    @REGION Logs Finales
+        @# Registrar fin del subflujo en log de auditoría
+        CALL [Funcion]-FormatearFechaHora
+        
+        IF gblObjVariablesGenerales.estadoProceso = "True" THEN
+            Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "FIN SUBFLUJO SIN REINTENTO,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,Exitoso"
+        ELSE
+            Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "FIN SUBFLUJO SIN REINTENTO,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,Error"
+        END
+    @ENDREGION
+    
+END
+@ENDREGION

@@ -1,0 +1,240 @@
+@REGION [Funcion]-EnvioNotificacion
+@# Función de envío de notificaciones por correo electrónico
+@# Soporta 7 tipos de notificación con plantillas HTML embebidas
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK EnvioNotificacion (tipoNotificacion, asuntoPersonalizado: "", cuerpoPersonalizado: "")
+    @# Inicialización de variables de función
+    @# Parámetros opcionales: asuntoPersonalizado y cuerpoPersonalizado (para tipo PERSONALIZADO)
+    SET gblObjVariablesGenerales.estadoProcesoFuncion TO "True"
+    SET gblObjVariablesGenerales.estadoSistemaFuncion TO "True"
+    
+    @# Control de errores de función
+    ON BLOCK ERROR
+        SET gblObjVariablesGenerales.estadoProcesoFuncion TO "False"
+        SET gblObjVariablesGenerales.estadoSistemaFuncion TO "False"
+        SET gblObjVariablesGenerales.observacionesFuncion TO "Error en EnvioNotificacion: %LastError%"
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [EnvioNotificacion]: %LastError%"
+        EXIT BLOCK
+    END
+    
+    @REGION Formatear Fecha/Hora Actual
+        @# Llamar función de formateo
+        CALL [Funcion]-FormatearFechaHora
+    @ENDREGION
+    
+    @REGION Inicialización de Variables de Correo
+        SET asuntoCorreo TO ""
+        SET cuerpoCorreo TO ""
+        SET destinatarios TO gblObjConfigMaestro.emailDestinatarios
+        SET adjuntarArchivos TO False
+        SET listaAdjuntos TO []
+    @ENDREGION
+    
+    @REGION Selección de Plantilla según Tipo de Notificación
+        SWITCH tipoNotificacion
+            CASE "INICIO"
+                @# Plantilla de notificación de INICIO
+                SET asuntoCorreo TO "🚀 RDA Costo Amortizable - INICIO [%gblObjFormatoFechaHora.fecha%]"
+                SET cuerpoCorreo TO "
+                <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <h2 style='color: #0078D4;'>✅ Inicio de Proceso RDA Costo Amortizable</h2>
+                    <p>El proceso <b>RDA Costo Amortizable</b> ha iniciado su ejecución.</p>
+                    <table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>
+                        <tr><td><b>Fecha de inicio</b></td><td>%gblObjFormatoFechaHora.fecha%</td></tr>
+                        <tr><td><b>Hora de inicio</b></td><td>%gblObjFormatoFechaHora.hora%</td></tr>
+                        <tr><td><b>Equipo</b></td><td>%gblObjConfigMaquina.nombreEquipo%</td></tr>
+                        <tr><td><b>Usuario</b></td><td>%gblObjConfigMaquina.usuarioEjecucion%</td></tr>
+                    </table>
+                    <br/>
+                    <p style='color: #666;'>Este es un mensaje automático generado por el RDA.</p>
+                </body>
+                </html>
+                "
+            
+            CASE "FIN"
+                @# Plantilla de notificación de FIN exitoso
+                SET asuntoCorreo TO "✅ RDA Costo Amortizable - FINALIZADO [%gblObjFormatoFechaHora.fecha%]"
+                SET cuerpoCorreo TO "
+                <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <h2 style='color: #28A745;'>✅ Proceso RDA Completado Exitosamente</h2>
+                    <p>El proceso <b>RDA Costo Amortizable</b> finalizó correctamente.</p>
+                    <table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>
+                        <tr><td><b>Fecha de finalización</b></td><td>%gblObjFormatoFechaHora.fecha%</td></tr>
+                        <tr><td><b>Hora de finalización</b></td><td>%gblObjFormatoFechaHora.hora%</td></tr>
+                        <tr><td><b>Estado</b></td><td style='color: green;'><b>EXITOSO</b></td></tr>
+                        <tr><td><b>Observaciones</b></td><td>%gblObjVariablesGenerales.observaciones%</td></tr>
+                    </table>
+                    <br/>
+                    <p>Los reportes de gestión están disponibles en la ruta configurada.</p>
+                    <p style='color: #666;'>Este es un mensaje automático generado por el RDA.</p>
+                </body>
+                </html>
+                "
+            
+            CASE "PCC"
+                @# Plantilla de error crítico (Proceso Con Control - crítico)
+                SET asuntoCorreo TO "❌ RDA Costo Amortizable - ERROR CRÍTICO [%gblObjFormatoFechaHora.fecha%]"
+                SET cuerpoCorreo TO "
+                <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <h2 style='color: #DC3545;'>❌ Error Crítico en Proceso RDA</h2>
+                    <p><b>¡ATENCIÓN!</b> El proceso <b>RDA Costo Amortizable</b> finalizó con un <b>error crítico</b>.</p>
+                    <table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>
+                        <tr><td><b>Fecha del error</b></td><td>%gblObjFormatoFechaHora.fecha%</td></tr>
+                        <tr><td><b>Hora del error</b></td><td>%gblObjFormatoFechaHora.hora%</td></tr>
+                        <tr><td><b>Subflujo afectado</b></td><td>%gblObjVariablesGenerales.subflujo%</td></tr>
+                        <tr><td><b>Estado</b></td><td style='color: red;'><b>ERROR CRÍTICO</b></td></tr>
+                        <tr><td><b>Descripción del error</b></td><td>%gblObjVariablesGenerales.observaciones%</td></tr>
+                    </table>
+                    <br/>
+                    <p><b>Acción requerida:</b> Se requiere intervención manual inmediata.</p>
+                    <p>Revise los logs de sistema para más detalles: <code>%gblStrRutaLogSistema%</code></p>
+                    <p style='color: #666;'>Este es un mensaje automático generado por el RDA.</p>
+                </body>
+                </html>
+                "
+                @# Adjuntar capturas de pantalla de error
+                SET adjuntarArchivos TO True
+            
+            CASE "PCNC"
+                @# Plantilla de error no crítico (Proceso Controlado No Crítico)
+                SET asuntoCorreo TO "⚠️ RDA Costo Amortizable - ADVERTENCIA [%gblObjFormatoFechaHora.fecha%]"
+                SET cuerpoCorreo TO "
+                <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <h2 style='color: #FFC107;'>⚠️ Advertencia en Proceso RDA</h2>
+                    <p>El proceso <b>RDA Costo Amortizable</b> generó una advertencia no crítica.</p>
+                    <table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>
+                        <tr><td><b>Fecha</b></td><td>%gblObjFormatoFechaHora.fecha%</td></tr>
+                        <tr><td><b>Hora</b></td><td>%gblObjFormatoFechaHora.hora%</td></tr>
+                        <tr><td><b>Subflujo</b></td><td>%gblObjVariablesGenerales.subflujo%</td></tr>
+                        <tr><td><b>Estado</b></td><td style='color: orange;'><b>ADVERTENCIA</b></td></tr>
+                        <tr><td><b>Descripción</b></td><td>%gblObjVariablesGenerales.observaciones%</td></tr>
+                    </table>
+                    <br/>
+                    <p>El proceso continuará su ejecución. Este mensaje es informativo.</p>
+                    <p style='color: #666;'>Este es un mensaje automático generado por el RDA.</p>
+                </body>
+                </html>
+                "
+                @# Adjuntar capturas de pantalla si existen
+                SET adjuntarArchivos TO True
+            
+            CASE "DIANOHABIL"
+                @# Plantilla de día no hábil
+                SET asuntoCorreo TO "📅 RDA Costo Amortizable - Día No Hábil [%gblObjFormatoFechaHora.fecha%]"
+                SET cuerpoCorreo TO "
+                <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <h2 style='color: #6C757D;'>📅 Día No Hábil Detectado</h2>
+                    <p>El proceso <b>RDA Costo Amortizable</b> no se ejecutará porque el día <b>%gblObjFormatoFechaHora.fecha%</b> es un día no hábil (festivo o fin de semana).</p>
+                    <p>La próxima ejecución se realizará en el siguiente día hábil programado.</p>
+                    <p style='color: #666;'>Este es un mensaje automático generado por el RDA.</p>
+                </body>
+                </html>
+                "
+            
+            CASE "LOGS y REPORTE"
+                @# Plantilla de envío de logs y reporte de gestión
+                SET asuntoCorreo TO "📊 RDA Costo Amortizable - Logs y Reporte [%gblObjFormatoFechaHora.fecha%]"
+                SET cuerpoCorreo TO "
+                <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <h2 style='color: #0078D4;'>📊 Logs y Reporte de Gestión</h2>
+                    <p>Adjunto encontrará los logs de auditoría, sistema y el reporte de gestión del proceso <b>RDA Costo Amortizable</b>.</p>
+                    <table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>
+                        <tr><td><b>Fecha de generación</b></td><td>%gblObjFormatoFechaHora.fecha%</td></tr>
+                        <tr><td><b>Hora de generación</b></td><td>%gblObjFormatoFechaHora.hora%</td></tr>
+                    </table>
+                    <br/>
+                    <p><b>Archivos adjuntos:</b></p>
+                    <ul>
+                        <li>Log de Auditoría</li>
+                        <li>Log de Sistema</li>
+                        <li>Reporte de Gestión</li>
+                    </ul>
+                    <p style='color: #666;'>Este es un mensaje automático generado por el RDA.</p>
+                </body>
+                </html>
+                "
+                @# Adjuntar logs y reporte
+                SET adjuntarArchivos TO True
+                List.AddItem List: listaAdjuntos Item: gblStrRutaLogAuditoria Result: listaAdjuntos
+                List.AddItem List: listaAdjuntos Item: gblStrRutaLogSistema Result: listaAdjuntos
+                List.AddItem List: listaAdjuntos Item: gblStrRutaReporteGestion Result: listaAdjuntos
+            
+            CASE "PERSONALIZADO"
+                @# Plantilla personalizada (requiere asunto y cuerpo en parámetros)
+                IF NOT DEFINED asuntoPersonalizado OR NOT DEFINED cuerpoPersonalizado THEN
+                    SET gblObjVariablesGenerales.observacionesFuncion TO "Notificacion PERSONALIZADO requiere asunto y cuerpo"
+                    THROW ERROR "Parametros faltantes para notificacion PERSONALIZADO"
+                END
+                SET asuntoCorreo TO asuntoPersonalizado
+                SET cuerpoCorreo TO cuerpoPersonalizado
+            
+            DEFAULT
+                @# Plantilla genérica por defecto
+                SET asuntoCorreo TO "📧 RDA Costo Amortizable - Notificación [%gblObjFormatoFechaHora.fecha%]"
+                SET cuerpoCorreo TO "
+                <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <h2 style='color: #0078D4;'>📧 Notificación del RDA Costo Amortizable</h2>
+                    <p>Se generó una notificación del proceso RDA Costo Amortizable.</p>
+                    <table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>
+                        <tr><td><b>Fecha</b></td><td>%gblObjFormatoFechaHora.fecha%</td></tr>
+                        <tr><td><b>Hora</b></td><td>%gblObjFormatoFechaHora.hora%</td></tr>
+                        <tr><td><b>Observaciones</b></td><td>%gblObjVariablesGenerales.observaciones%</td></tr>
+                    </table>
+                    <p style='color: #666;'>Este es un mensaje automático generado por el RDA.</p>
+                </body>
+                </html>
+                "
+        END
+    @ENDREGION
+    
+    @REGION Preparación de Adjuntos de Capturas de Pantalla
+        @# Si hay capturas de pantalla, agregarlas a lista de adjuntos
+        IF adjuntarArchivos = True AND gblObjVariablesGenerales.listaRutasCapturasPantalla <> "" THEN
+            @# Dividir lista de rutas por punto y coma
+            Text.SplitText Text: gblObjVariablesGenerales.listaRutasCapturasPantalla Delimiter: ";" Result: arrayRutasCapturas
+            
+            @# Agregar cada captura a lista de adjuntos
+            FOR EACH rutaCaptura IN arrayRutasCapturas
+                List.AddItem List: listaAdjuntos Item: rutaCaptura Result: listaAdjuntos
+            END
+        END
+    @ENDREGION
+    
+    @REGION Envío de Correo SMTP
+        @# Configuración SMTP desde configuración maestro
+        SET smtpServer TO gblObjConfigMaestro.smtpServer
+        SET smtpPort TO gblObjConfigMaestro.smtpPort
+        SET emailRemitente TO gblObjConfigMaestro.emailRemitente
+        
+        @# Opción 1: Envío con adjuntos (HABILITADO)
+        IF adjuntarArchivos = True AND listaAdjuntos.Count > 0 THEN
+            Email.SendEmail SMTPServer: smtpServer Port: smtpPort From: emailRemitente To: destinatarios Subject: asuntoCorreo Body: cuerpoCorreo IsBodyHtml: True Attachments: listaAdjuntos
+        ELSE
+            @# Opción 2: Envío sin adjuntos
+            Email.SendEmail SMTPServer: smtpServer Port: smtpPort From: emailRemitente To: destinatarios Subject: asuntoCorreo Body: cuerpoCorreo IsBodyHtml: True
+        END
+        
+        @# Registrar envío en log
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [EnvioNotificacion]: Correo enviado (Tipo: %tipoNotificacion%, Destinatarios: %destinatarios%)"
+    @ENDREGION
+    
+    @REGION Limpieza de Lista de Capturas
+        @# Limpiar lista de capturas después de enviar
+        SET gblObjVariablesGenerales.listaRutasCapturasPantalla TO ""
+    @ENDREGION
+    
+    @# Marcar función como exitosa
+    SET gblObjVariablesGenerales.estadoProcesoFuncion TO "True"
+    SET gblObjVariablesGenerales.observacionesFuncion TO "Notificacion de tipo %tipoNotificacion% enviada exitosamente"
+    
+END
+@ENDREGION

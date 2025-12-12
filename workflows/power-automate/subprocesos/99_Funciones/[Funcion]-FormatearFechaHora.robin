@@ -1,0 +1,69 @@
+@REGION [Funcion]-FormatearFechaHora
+@# Función de formateo de fecha y hora
+@# Captura fecha/hora actual y la convierte a formatos personalizados
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK FormatearFechaHora
+    @# Inicialización de variables de función
+    SET gblObjVariablesGenerales.estadoProcesoFuncion TO "True"
+    SET gblObjVariablesGenerales.estadoSistemaFuncion TO "True"
+    
+    @# Control de errores de función
+    ON BLOCK ERROR
+        SET gblObjVariablesGenerales.estadoProcesoFuncion TO "False"
+        SET gblObjVariablesGenerales.estadoSistemaFuncion TO "False"
+        SET gblObjVariablesGenerales.observacionesFuncion TO "Error en FormatearFechaHora: %LastError%"
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [FormatearFechaHora]: %LastError%"
+        EXIT BLOCK
+    END
+    
+    @REGION Captura de DateTime Actual
+        @# Obtener fecha y hora actual del sistema (zona horaria local)
+        DateTime.GetCurrentDateTime Result: fechaHoraActual
+    @ENDREGION
+    
+    @REGION Conversión de Fecha con Formato Personalizado
+        @# Obtener formato de fecha desde configuración global
+        SET formatoFecha TO gblObjFormatoFechaHora.formatoFecha
+        
+        @# Si no está definido, usar formato por defecto
+        IF formatoFecha = "" OR NOT DEFINED formatoFecha THEN
+            SET formatoFecha TO "dd/MM/yyyy"
+        END
+        
+        @# Convertir fecha con formato personalizado
+        DateTime.FormatDateTime DateTime: fechaHoraActual Format: formatoFecha Result: fechaFormateada
+        
+        @# Actualizar objeto global
+        SET gblObjFormatoFechaHora.fecha TO fechaFormateada
+    @ENDREGION
+    
+    @REGION Conversión de Hora con Formato Personalizado
+        @# Obtener formato de hora desde configuración global
+        SET formatoHora TO gblObjFormatoFechaHora.formatoHora
+        
+        @# Si no está definido, usar formato por defecto
+        IF formatoHora = "" OR NOT DEFINED formatoHora THEN
+            SET formatoHora TO "HH:mm:ss"
+        END
+        
+        @# Convertir hora con formato personalizado
+        DateTime.FormatDateTime DateTime: fechaHoraActual Format: formatoHora Result: horaFormateada
+        
+        @# Actualizar objeto global
+        SET gblObjFormatoFechaHora.hora TO horaFormateada
+    @ENDREGION
+    
+    @REGION Logs de Auditoría
+        @# Registrar formateo en log de sistema (nivel DEBUG)
+        @# Comentado para evitar logs excesivos
+        @# Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "DEBUG [FormatearFechaHora]: Fecha=%fechaFormateada%, Hora=%horaFormateada%"
+    @ENDREGION
+    
+    @# Marcar función como exitosa
+    SET gblObjVariablesGenerales.estadoProcesoFuncion TO "True"
+    SET gblObjVariablesGenerales.observacionesFuncion TO "Fecha/hora formateadas exitosamente"
+    
+END
+@ENDREGION

@@ -1,0 +1,171 @@
+@REGION [Configuracion]-Configuracion
+@# Flujo de configuración inicial del RDA
+@# Carga archivos JSON de configuración, valida rutas y crea estructura de carpetas
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK Configuracion
+    @# Inicialización de variables
+    SET gblObjVariablesGenerales.estadoProceso TO "True"
+    SET gblObjVariablesGenerales.estadoSistema TO "True"
+    
+    @# Control de errores específico
+    ON BLOCK ERROR
+        SET gblObjVariablesGenerales.estadoProceso TO "False"
+        SET gblObjVariablesGenerales.estadoSistema TO "False"
+        SET gblObjVariablesGenerales.observaciones TO "Error en Configuracion: %LastError%"
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [Configuracion]: %LastError%"
+        EXIT BLOCK
+    END
+    
+    @REGION Definición de Rutas Base
+        @# Obtener ruta base de usuario
+        Environment.GetEnvironmentVariable Name: "USERPROFILE" Result: varUserProfile
+        Environment.GetEnvironmentVariable Name: "COMPUTERNAME" Result: varComputerName
+        
+        @# Construir rutas de configuración
+        SET rutaConfigMaestro TO "%varUserProfile%\\Documents\\RDA_Costo_Amortizable\\config\\Configuracion_Maestro.json"
+        SET rutaConfigMaquina TO "%varUserProfile%\\Documents\\RDA_Costo_Amortizable\\config\\Configuracion_Maquina.json"
+    @ENDREGION
+    
+    @REGION Carga de Archivos JSON de Configuración
+        @# Validar existencia de Configuracion_Maestro.json
+        IF NOT File.IfFileExists FilePath: rutaConfigMaestro THEN
+            SET gblObjVariablesGenerales.observaciones TO "Archivo Configuracion_Maestro.json no encontrado"
+            THROW ERROR "Archivo de configuración maestro no existe"
+        END
+        
+        @# Cargar Configuracion_Maestro.json
+        File.ReadTextFromFile FilePath: rutaConfigMaestro Encoding: File.TextFileEncoding.UTF8 Content: jsonConfigMaestro
+        Json.ParseJson JsonString: jsonConfigMaestro JsonObject: gblObjConfigMaestro
+        
+        @# Validar existencia de Configuracion_Maquina.json
+        IF NOT File.IfFileExists FilePath: rutaConfigMaquina THEN
+            SET gblObjVariablesGenerales.observaciones TO "Archivo Configuracion_Maquina.json no encontrado"
+            THROW ERROR "Archivo de configuración de máquina no existe"
+        END
+        
+        @# Cargar Configuracion_Maquina.json
+        File.ReadTextFromFile FilePath: rutaConfigMaquina Encoding: File.TextFileEncoding.UTF8 Content: jsonConfigMaquina
+        Json.ParseJson JsonString: jsonConfigMaquina JsonObject: gblObjConfigMaquina
+    @ENDREGION
+    
+    @REGION Validación de COMPUTERNAME
+        @# Validar que el equipo está registrado en Configuracion_Maestro
+        SET equipoValido TO False
+        FOR EACH maquina IN gblObjConfigMaestro.maquinasAutorizadas
+            IF maquina.nombre = varComputerName THEN
+                SET equipoValido TO True
+                EXIT LOOP
+            END
+        END
+        
+        IF equipoValido = False THEN
+            SET gblObjVariablesGenerales.observaciones TO "Equipo %varComputerName% no autorizado"
+            THROW ERROR "Equipo no autorizado para ejecutar RDA"
+        END
+    @ENDREGION
+    
+    @REGION Cálculo de Rutas Dinámicas
+        @# Obtener fecha actual
+        DateTime.GetCurrentDateTime Result: fechaActual
+        DateTime.FormatDateTime DateTime: fechaActual Format: "yyyy" Result: strAnio
+        DateTime.FormatDateTime DateTime: fechaActual Format: "MM" Result: strMes
+        DateTime.FormatDateTime DateTime: fechaActual Format: "dd" Result: strDia
+        
+        @# Construir rutas dinámicas con año/mes/día
+        SET gblStrRutaBase TO "%gblObjConfigMaquina.rutaBase%\\%strAnio%\\%strMes%"
+        SET gblStrRutaCapturas TO "%gblStrRutaBase%\\Capturas"
+        SET gblStrRutaLogs TO "%gblStrRutaBase%\\Logs"
+        SET gblStrRutaReportes TO "%gblStrRutaBase%\\Reportes"
+        SET gblStrRutaTemp TO "%gblStrRutaBase%\\Temp"
+        SET gblStrRutaLogAuditoria TO "%gblStrRutaLogs%\\Log_Auditoria_%strAnio%%strMes%%strDia%.csv"
+        SET gblStrRutaLogSistema TO "%gblStrRutaLogs%\\Log_Sistema_%strAnio%%strMes%%strDia%.csv"
+    @ENDREGION
+    
+    @REGION Creación de Estructura de Carpetas
+        @# Script VBS para crear carpetas recursivamente
+        SET vbsCreateFolders TO "
+        Dim fso, carpetas, carpeta
+        Set fso = CreateObject(""Scripting.FileSystemObject"")
+        carpetas = Array(""%gblStrRutaCapturas%"", ""%gblStrRutaLogs%"", ""%gblStrRutaReportes%"", ""%gblStrRutaTemp%"")
+        For Each carpeta In carpetas
+            If Not fso.FolderExists(carpeta) Then
+                fso.CreateFolder(carpeta)
+            End If
+        Next
+        "
+        
+        @# Ejecutar script VBS
+        System.RunDosCommand Command: "cscript //nologo //E:vbscript script.vbs" WorkingFolder: "" Result: resultCreateFolders
+    @ENDREGION
+    
+    @REGION Cierre de Aplicaciones Previas
+        @# Script VBS para cerrar Excel y Access si están abiertos
+        SET vbsCloseApps TO "
+        Dim objWMI, colProcesses, objProcess
+        Set objWMI = GetObject(""winmgmts://./root/cimv2"")
+        Set colProcesses = objWMI.ExecQuery(""SELECT * FROM Win32_Process WHERE Name='EXCEL.EXE' OR Name='MSACCESS.EXE'"")
+        For Each objProcess In colProcesses
+            objProcess.Terminate()
+        Next
+        "
+        
+        @# Ejecutar script VBS
+        System.RunDosCommand Command: "cscript //nologo //E:vbscript closeapps.vbs" WorkingFolder: "" Result: resultCloseApps
+        
+        @# Esperar 2 segundos
+        Wait Seconds: 2
+    @ENDREGION
+    
+    @REGION Limpieza de Archivos Temporales
+        @# Eliminar archivos temporales de ejecuciones previas
+        IF Folder.IfFolderExists FolderPath: gblStrRutaTemp THEN
+            Folder.GetFiles FolderPath: gblStrRutaTemp FileFilter: "*.*" Result: archivosTemp
+            FOR EACH archivoTemp IN archivosTemp
+                File.DeleteFile FilePath: archivoTemp
+            END
+        END
+    @ENDREGION
+    
+    @REGION Copia de Plantilla de Reporte
+        @# Ruta de plantilla de reporte
+        SET rutaPlantillaReporte TO "%gblObjConfigMaestro.rutaPlantillas%\\Plantilla_Reporte_Gestion.xlsx"
+        SET rutaReporteDestino TO "%gblStrRutaReportes%\\Reporte_Gestion_%strAnio%%strMes%%strDia%.xlsx"
+        
+        @# Copiar plantilla
+        IF File.IfFileExists FilePath: rutaPlantillaReporte THEN
+            File.CopyFile FilePath: rutaPlantillaReporte Destination: rutaReporteDestino
+            SET gblStrRutaReporteGestion TO rutaReporteDestino
+        END
+    @ENDREGION
+    
+    @REGION Creación de Logs CSV con Headers
+        @# Crear Log de Auditoría con headers
+        IF NOT File.IfFileExists FilePath: gblStrRutaLogAuditoria THEN
+            Text.WriteText File: gblStrRutaLogAuditoria Text: "Evento,Fecha,Hora,Observaciones"
+        END
+        
+        @# Crear Log de Sistema con headers
+        IF NOT File.IfFileExists FilePath: gblStrRutaLogSistema THEN
+            Text.WriteText File: gblStrRutaLogSistema Text: "Timestamp,Nivel,Subflujo,Mensaje"
+        END
+    @ENDREGION
+    
+    @REGION Logs de Auditoría de Inicio
+        @# Formatear fecha/hora actual
+        CALL [Funcion]-FormatearFechaHora
+        
+        @# Registrar inicio en log de auditoría
+        Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "INICIO CONFIGURACION,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,Configuracion inicial completada"
+        
+        @# Registrar en log de sistema
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "%gblObjFormatoFechaHora.fecha% %gblObjFormatoFechaHora.hora%,INFO,Configuracion,Configuracion inicial completada exitosamente"
+    @ENDREGION
+    
+    @# Marcar configuración como exitosa
+    SET gblObjVariablesGenerales.estadoProceso TO "True"
+    SET gblObjVariablesGenerales.observaciones TO "Configuracion completada exitosamente"
+    
+END
+@ENDREGION
