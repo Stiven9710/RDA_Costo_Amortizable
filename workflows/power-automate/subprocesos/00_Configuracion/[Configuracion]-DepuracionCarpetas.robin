@@ -19,7 +19,21 @@
     
     @REGION Inicialización de Diccionario de Meses
         @# Crear diccionario para restar 1 mes
-        SET dictMeses TO {"01": {"anterior": "12", "anioAnterior": True}, "02": {"anterior": "01", "anioAnterior": False}, "03": {"anterior": "02", "anioAnterior": False}, "04": {"anterior": "03", "anioAnterior": False}, "05": {"anterior": "04", "anioAnterior": False}, "06": {"anterior": "05", "anioAnterior": False}, "07": {"anterior": "06", "anioAnterior": False}, "08": {"anterior": "07", "anioAnterior": False}, "09": {"anterior": "08", "anioAnterior": False}, "10": {"anterior": "09", "anioAnterior": False}, "11": {"anterior": "10", "anioAnterior": False}, "12": {"anterior": "11", "anioAnterior": False}}
+        @# Formato: "MM": {"anterior": "MM", "anioAnterior": True/False}
+        SET dictMeses TO {
+            "01": {"anterior": "12", "anioAnterior": True},
+            "02": {"anterior": "01", "anioAnterior": False},
+            "03": {"anterior": "02", "anioAnterior": False},
+            "04": {"anterior": "03", "anioAnterior": False},
+            "05": {"anterior": "04", "anioAnterior": False},
+            "06": {"anterior": "05", "anioAnterior": False},
+            "07": {"anterior": "06", "anioAnterior": False},
+            "08": {"anterior": "07", "anioAnterior": False},
+            "09": {"anterior": "08", "anioAnterior": False},
+            "10": {"anterior": "09", "anioAnterior": False},
+            "11": {"anterior": "10", "anioAnterior": False},
+            "12": {"anterior": "11", "anioAnterior": False}
+        }
     @ENDREGION
     
     @REGION Captura de Fecha Actual

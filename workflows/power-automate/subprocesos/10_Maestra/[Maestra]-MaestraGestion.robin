@@ -28,18 +28,21 @@
     END
     
     @REGION Validación de Día Hábil
-        @# Llamar función para validar si es día no hábil
-        @# Esta función verifica festivos y fines de semana
-        CALL [Funcion]-LaFechaEsUnDiaNoHabil Result: esDiaNoHabil
+        @# PLACEHOLDER: Validación de día hábil
+        @# Llamar función para validar si es día no hábil (pendiente de implementar)
+        @# Esta función verificará festivos y fines de semana
+        @# CALL [Funcion]-LaFechaEsUnDiaNoHabil Result: esDiaNoHabil
         
-        @# Validar resultado de función
-        IF gblObjVariablesGenerales.estadoProcesoFuncion = "False" THEN
-            @# Error en validación de festivos
-            SET gblObjVariablesGenerales.estadoProceso TO "False"
-            SET gblObjVariablesGenerales.observaciones TO "Error al validar festivos: %gblObjVariablesGenerales.observacionesFuncion%"
-            Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [MaestraGestion]: Error en validacion de festivos"
-            EXIT BLOCK
-        END
+        @# Por ahora, asumimos que siempre es día hábil
+        SET esDiaNoHabil TO False
+        
+        @# Validar resultado de función (cuando esté implementada)
+        @# IF gblObjVariablesGenerales.estadoProcesoFuncion = "False" THEN
+        @#     SET gblObjVariablesGenerales.estadoProceso TO "False"
+        @#     SET gblObjVariablesGenerales.observaciones TO "Error al validar festivos"
+        @#     Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [MaestraGestion]: Error en validacion de festivos"
+        @#     EXIT BLOCK
+        @# END
         
         @# Si es día no hábil, enviar notificación y salir
         IF esDiaNoHabil = True THEN

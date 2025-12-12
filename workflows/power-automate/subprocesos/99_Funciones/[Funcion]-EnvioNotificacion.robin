@@ -4,8 +4,9 @@
 @# Autor: Ronald Estiven Rios Hernandez
 @# Fecha: 2025-12-12
 
-@BLOCK EnvioNotificacion (tipoNotificacion)
+@BLOCK EnvioNotificacion (tipoNotificacion, asuntoPersonalizado: "", cuerpoPersonalizado: "")
     @# Inicialización de variables de función
+    @# Parámetros opcionales: asuntoPersonalizado y cuerpoPersonalizado (para tipo PERSONALIZADO)
     SET gblObjVariablesGenerales.estadoProcesoFuncion TO "True"
     SET gblObjVariablesGenerales.estadoSistemaFuncion TO "True"
     

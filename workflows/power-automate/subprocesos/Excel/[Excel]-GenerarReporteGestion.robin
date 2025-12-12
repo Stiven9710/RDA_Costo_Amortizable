@@ -19,17 +19,8 @@
     END
     
     @REGION Cierre de Instancias de Excel Previas
-        @# Script VBS para cerrar Excel con taskkill
-        SET vbsCloseExcel TO "
-        Dim objShell, result
-        Set objShell = CreateObject(""WScript.Shell"")
-        On Error Resume Next
-        result = objShell.Run(""taskkill /F /IM EXCEL.EXE"", 0, True)
-        On Error Goto 0
-        "
-        
-        @# Ejecutar script VBS
-        System.RunDosCommand Command: "cscript //nologo //E:vbscript closeexcel.vbs" WorkingFolder: "" Result: resultCloseExcel
+        @# Cerrar Excel directamente con taskkill (sin VBS)
+        System.RunDosCommand Command: "taskkill /F /IM EXCEL.EXE" WorkingFolder: "" IgnoreError: True Result: resultCloseExcel
         
         @# Esperar 2 segundos
         Wait Seconds: 2
