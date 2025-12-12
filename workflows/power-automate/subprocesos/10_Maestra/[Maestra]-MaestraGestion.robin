@@ -1,0 +1,97 @@
+@REGION [Maestra]-MaestraGestion
+@# Flujo gestor de subflujos de negocio (CAPA 01-09)
+@# Coordina la ejecución de todos los subflujos de procesamiento de negocio
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK MaestraGestion
+    @# Inicialización de variables
+    SET gblObjVariablesGenerales.estadoProceso TO "True"
+    SET gblObjVariablesGenerales.estadoSistema TO "True"
+    
+    @# Control de errores PCNC (Proceso Controlado No Crítico)
+    ON BLOCK ERROR
+        SET gblObjVariablesGenerales.estadoProceso TO "False"
+        SET gblObjVariablesGenerales.estadoSistema TO "False"
+        SET gblObjVariablesGenerales.observaciones TO "Error en MaestraGestion: %LastError%"
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [MaestraGestion]: %LastError%"
+        
+        @# Captura de pantalla de error
+        SET gblObjVariablesGenerales.tipoCapturaPantalla TO "Error"
+        CALL [Funcion]-CapturaPantalla
+        
+        @# Envío de notificación PCNC
+        SET tipoNotificacion TO "PCNC"
+        CALL [Funcion]-EnvioNotificacion tipoNotificacion: tipoNotificacion
+        
+        EXIT BLOCK
+    END
+    
+    @REGION Validación de Día Hábil
+        @# Llamar función para validar si es día no hábil
+        @# Esta función verifica festivos y fines de semana
+        CALL [Funcion]-LaFechaEsUnDiaNoHabil Result: esDiaNoHabil
+        
+        @# Validar resultado de función
+        IF gblObjVariablesGenerales.estadoProcesoFuncion = "False" THEN
+            @# Error en validación de festivos
+            SET gblObjVariablesGenerales.estadoProceso TO "False"
+            SET gblObjVariablesGenerales.observaciones TO "Error al validar festivos: %gblObjVariablesGenerales.observacionesFuncion%"
+            Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [MaestraGestion]: Error en validacion de festivos"
+            EXIT BLOCK
+        END
+        
+        @# Si es día no hábil, enviar notificación y salir
+        IF esDiaNoHabil = True THEN
+            SET tipoNotificacion TO "DIANOHABIL"
+            CALL [Funcion]-EnvioNotificacion tipoNotificacion: tipoNotificacion
+            
+            SET gblObjVariablesGenerales.observaciones TO "Dia no habil, proceso no ejecutado"
+            Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "DIA NO HABIL,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,Proceso no ejecutado"
+            EXIT BLOCK
+        END
+    @ENDREGION
+    
+    @REGION Invocación de Subflujos de Negocio CAPA 01-09
+        @# Registrar inicio de procesamiento de negocio
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [MaestraGestion]: Iniciando subflujos de negocio CAPA 01-09"
+        
+        @# PLACEHOLDER: Aquí se invocan los subflujos de negocio en secuencia
+        @# Ejemplo conceptual:
+        @# CALL [Extraccion]-ExtraccionDWH
+        @# CALL [Consolidacion]-ConsolidarReestructurados
+        @# CALL [Organizacion]-ClasificarDatos
+        @# CALL [Cargue]-CargarSQL
+        @# CALL [Validacion]-ValidarCompletitud
+        @# CALL [Calculos]-CalcularIndicadores
+        @# CALL [Ejecucion]-EjecutarMacros
+        @# CALL [FormatoFinal]-GenerarFormatoEnvio
+        @# CALL [Cargue_Final]-CargueFinalProduccion
+        
+        @# Por ahora, simulamos ejecución exitosa
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [MaestraGestion]: Subflujos de negocio CAPA 01-09 completados (PLACEHOLDER)"
+        
+        @# Generar reporte de gestión
+        CALL [Excel]-GenerarReporteGestion
+    @ENDREGION
+    
+    @REGION Reset de Variables de Control
+        @# Resetear número único de proceso para siguientes ejecuciones
+        SET gblStrNumeroUnicoProceso TO ""
+    @ENDREGION
+    
+    @REGION Logs Finales
+        @# Registrar fin exitoso en log de sistema
+        CALL [Funcion]-FormatearFechaHora
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [MaestraGestion]: Maestra de gestion completada exitosamente"
+        
+        @# Registrar en log de auditoría
+        Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "FIN MAESTRA GESTION,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,Procesamiento de negocio completado"
+    @ENDREGION
+    
+    @# Marcar proceso como exitoso
+    SET gblObjVariablesGenerales.estadoProceso TO "True"
+    SET gblObjVariablesGenerales.observaciones TO "Maestra de gestion completada exitosamente"
+    
+END
+@ENDREGION

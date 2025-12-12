@@ -1,0 +1,146 @@
+@REGION [Excel]-GenerarReporteGestion
+@# Función de escritura en reporte Excel de gestión
+@# Escribe datos de ejecución en reporte de gestión consolidado
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK GenerarReporteGestion
+    @# Inicialización de variables de función
+    SET gblObjVariablesGenerales.estadoProcesoFuncion TO "True"
+    SET gblObjVariablesGenerales.estadoSistemaFuncion TO "True"
+    
+    @# Control de errores PCNC
+    ON BLOCK ERROR
+        SET gblObjVariablesGenerales.estadoProcesoFuncion TO "False"
+        SET gblObjVariablesGenerales.estadoSistemaFuncion TO "False"
+        SET gblObjVariablesGenerales.observacionesFuncion TO "Error en GenerarReporteGestion: %LastError%"
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [GenerarReporteGestion]: %LastError%"
+        EXIT BLOCK
+    END
+    
+    @REGION Cierre de Instancias de Excel Previas
+        @# Script VBS para cerrar Excel con taskkill
+        SET vbsCloseExcel TO "
+        Dim objShell, result
+        Set objShell = CreateObject(""WScript.Shell"")
+        On Error Resume Next
+        result = objShell.Run(""taskkill /F /IM EXCEL.EXE"", 0, True)
+        On Error Goto 0
+        "
+        
+        @# Ejecutar script VBS
+        System.RunDosCommand Command: "cscript //nologo //E:vbscript closeexcel.vbs" WorkingFolder: "" Result: resultCloseExcel
+        
+        @# Esperar 2 segundos
+        Wait Seconds: 2
+    @ENDREGION
+    
+    @REGION Validación de Objeto de Reporte
+        @# Validar que gblObjReporteGestion no esté vacío
+        IF gblObjReporteGestion = {} OR NOT DEFINED gblObjReporteGestion THEN
+            @# No hay datos para escribir, salir sin error
+            Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [GenerarReporteGestion]: No hay datos para escribir en reporte"
+            SET gblObjVariablesGenerales.observacionesFuncion TO "No hay datos para generar reporte"
+            EXIT BLOCK
+        END
+    @ENDREGION
+    
+    @REGION Apertura de Excel
+        @# Abrir Excel con configuración Visible=False y ReadOnly=False
+        Excel.LaunchExcel Visible: False ReadOnly: False Instance: excelInstance
+        
+        @# Abrir archivo de reporte de gestión
+        Excel.OpenWorkbook Instance: excelInstance Workbook: gblStrRutaReporteGestion Result: workbookReporte
+        
+        @# Activar hoja de reporte (por defecto "Reporte")
+        Excel.ActivateWorksheet Instance: excelInstance WorksheetName: "Reporte"
+    @ENDREGION
+    
+    @REGION Cálculo de Primera Fila Libre
+        @# Obtener primera fila libre en columna A
+        Excel.GetFirstFreeColumnRow Instance: excelInstance Column: "A" Result: primeraFilaLibre
+        
+        @# Si es la primera fila (headers), saltar a fila 2
+        IF primeraFilaLibre <= 1 THEN
+            SET primeraFilaLibre TO 2
+        END
+    @ENDREGION
+    
+    @REGION Escritura de Datos Generales (Columnas A-G)
+        @# Columna A: Fecha de ejecución
+        Excel.WriteCell Instance: excelInstance Column: "A" Row: primeraFilaLibre Value: gblObjReporteGestion.fechaEjecucion
+        
+        @# Columna B: Hora de ejecución
+        Excel.WriteCell Instance: excelInstance Column: "B" Row: primeraFilaLibre Value: gblObjReporteGestion.horaEjecucion
+        
+        @# Columna C: Nombre del asistente
+        Excel.WriteCell Instance: excelInstance Column: "C" Row: primeraFilaLibre Value: gblObjVariablesGenerales.nombreAsistente
+        
+        @# Columna D: Subflujo ejecutado
+        Excel.WriteCell Instance: excelInstance Column: "D" Row: primeraFilaLibre Value: gblObjReporteGestion.subflujo
+        
+        @# Columna E: Estado del proceso
+        Excel.WriteCell Instance: excelInstance Column: "E" Row: primeraFilaLibre Value: gblObjReporteGestion.estadoProceso
+        
+        @# Columna F: Observaciones
+        Excel.WriteCell Instance: excelInstance Column: "F" Row: primeraFilaLibre Value: gblObjReporteGestion.observaciones
+        
+        @# Columna G: Equipo de ejecución
+        Excel.WriteCell Instance: excelInstance Column: "G" Row: primeraFilaLibre Value: gblObjConfigMaquina.nombreEquipo
+    @ENDREGION
+    
+    @REGION Escritura de Datos de Etapa (Columnas H-N)
+        @# Columna H: Etapa del proceso
+        IF DEFINED gblObjReporteGestion.etapa THEN
+            Excel.WriteCell Instance: excelInstance Column: "H" Row: primeraFilaLibre Value: gblObjReporteGestion.etapa
+        END
+        
+        @# Columna I: Registros procesados
+        IF DEFINED gblObjReporteGestion.registrosProcesados THEN
+            Excel.WriteCell Instance: excelInstance Column: "I" Row: primeraFilaLibre Value: gblObjReporteGestion.registrosProcesados
+        END
+        
+        @# Columna J: Registros con error
+        IF DEFINED gblObjReporteGestion.registrosError THEN
+            Excel.WriteCell Instance: excelInstance Column: "J" Row: primeraFilaLibre Value: gblObjReporteGestion.registrosError
+        END
+        
+        @# Columna K: Tiempo de ejecución (segundos)
+        IF DEFINED gblObjReporteGestion.tiempoEjecucion THEN
+            Excel.WriteCell Instance: excelInstance Column: "K" Row: primeraFilaLibre Value: gblObjReporteGestion.tiempoEjecucion
+        END
+        
+        @# Columna L: Aplicación intervenida
+        IF DEFINED gblObjReporteGestion.aplicacionIntervenida THEN
+            Excel.WriteCell Instance: excelInstance Column: "L" Row: primeraFilaLibre Value: gblObjReporteGestion.aplicacionIntervenida
+        END
+        
+        @# Columna M: Número único de proceso
+        IF DEFINED gblStrNumeroUnicoProceso THEN
+            Excel.WriteCell Instance: excelInstance Column: "M" Row: primeraFilaLibre Value: gblStrNumeroUnicoProceso
+        END
+        
+        @# Columna N: Usuario de ejecución
+        Excel.WriteCell Instance: excelInstance Column: "N" Row: primeraFilaLibre Value: gblObjConfigMaquina.usuarioEjecucion
+    @ENDREGION
+    
+    @REGION Cierre y Guardado de Excel
+        @# Guardar cambios en el archivo
+        Excel.SaveWorkbook Instance: excelInstance
+        
+        @# Cerrar workbook
+        Excel.CloseWorkbook Instance: excelInstance
+        
+        @# Cerrar instancia de Excel
+        Excel.CloseExcel Instance: excelInstance
+        
+        @# Registrar en log
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [GenerarReporteGestion]: Reporte de gestion actualizado en fila %primeraFilaLibre%"
+    @ENDREGION
+    
+    @# Marcar función como exitosa
+    SET gblObjVariablesGenerales.estadoProcesoFuncion TO "True"
+    SET gblObjVariablesGenerales.observacionesFuncion TO "Reporte de gestion generado exitosamente"
+    
+END
+@ENDREGION

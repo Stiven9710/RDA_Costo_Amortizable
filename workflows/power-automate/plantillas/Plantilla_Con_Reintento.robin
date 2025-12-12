@@ -1,0 +1,99 @@
+@REGION Plantilla_Con_Reintento
+@# Plantilla de subflujo con lógica de reintentos automáticos
+@# Utilizar esta plantilla para procesos que requieren reintentos en caso de error
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK SubflujoConReintento
+    @# Inicialización de variables
+    SET gblObjVariablesGenerales.estadoProceso TO "True"
+    SET gblObjVariablesGenerales.estadoSistema TO "True"
+    SET listaRutasCapturasPantalla TO []
+    
+    @# Obtener número de intentos desde configuración (por defecto 3)
+    IF DEFINED gblObjConfigMaestro.numeroIntentosProceso THEN
+        SET numeroIntentosProceso TO gblObjConfigMaestro.numeroIntentosProceso
+    ELSE
+        SET numeroIntentosProceso TO 3
+    END
+    
+    @REGION Loop de Reintentos
+        @# Iniciar loop de reintentos
+        LOOP locIntReitento FROM 1 TO numeroIntentosProceso
+            @# Control de errores por iteración
+            ON BLOCK ERROR
+                @# Registrar error del intento actual
+                Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [SubflujoConReintento]: Intento %locIntReitento% de %numeroIntentosProceso% - %LastError%"
+                
+                @# Capturar pantalla del error
+                SET gblObjVariablesGenerales.tipoCapturaPantalla TO "Error"
+                CALL [Funcion]-CapturaPantalla
+                
+                @# Validar si es el último intento
+                IF locIntReitento = numeroIntentosProceso THEN
+                    @# Es el último intento, marcar como error y enviar notificación
+                    SET gblObjVariablesGenerales.estadoProceso TO "False"
+                    SET gblObjVariablesGenerales.estadoSistema TO "False"
+                    SET gblObjVariablesGenerales.observaciones TO "Error en SubflujoConReintento despues de %numeroIntentosProceso% intentos: %LastError%"
+                    
+                    @# Enviar correo PCNC
+                    SET tipoNotificacion TO "PCNC"
+                    CALL [Funcion]-EnvioNotificacion tipoNotificacion: tipoNotificacion
+                    
+                    @# Salir del bloque
+                    EXIT BLOCK
+                ELSE
+                    @# No es el último intento, esperar y reintentar
+                    Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [SubflujoConReintento]: Esperando 5 segundos antes del reintento..."
+                    Wait Seconds: 5
+                    
+                    @# Continuar con el siguiente intento (CONTINUE LOOP)
+                    CONTINUE LOOP
+                END
+            END
+            
+            @REGION Proceso Principal
+                @# ================================================
+                @# PLACEHOLDER: Insertar lógica del proceso aquí
+                @# ================================================
+                
+                @# Ejemplo de proceso:
+                @# 1. Validar condiciones previas
+                @# 2. Ejecutar operación principal
+                @# 3. Validar resultado
+                
+                Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [SubflujoConReintento]: Intento %locIntReitento% - Ejecutando proceso..."
+                
+                @# Simulación de proceso exitoso
+                SET resultadoProceso TO "EXITOSO"
+                
+                @# ================================================
+                @# FIN PLACEHOLDER
+                @# ================================================
+            @ENDREGION
+            
+            @# Si llegamos aquí, el proceso fue exitoso
+            Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [SubflujoConReintento]: Proceso completado exitosamente en intento %locIntReitento%"
+            
+            @# Marcar estado como exitoso
+            SET gblObjVariablesGenerales.estadoProceso TO "True"
+            SET gblObjVariablesGenerales.observaciones TO "Proceso completado en intento %locIntReitento%"
+            
+            @# Salir del loop (éxito)
+            EXIT LOOP
+        END
+    @ENDREGION
+    
+    @REGION Logs Finales
+        @# Registrar fin del subflujo en log de auditoría
+        CALL [Funcion]-FormatearFechaHora
+        
+        IF gblObjVariablesGenerales.estadoProceso = "True" THEN
+            Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "FIN SUBFLUJO CON REINTENTO,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,Exitoso"
+        ELSE
+            Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "FIN SUBFLUJO CON REINTENTO,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,Error"
+        END
+    @ENDREGION
+    
+END
+@ENDREGION

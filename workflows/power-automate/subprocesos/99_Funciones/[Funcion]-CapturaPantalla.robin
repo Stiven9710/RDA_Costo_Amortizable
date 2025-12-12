@@ -1,0 +1,100 @@
+@REGION [Funcion]-CapturaPantalla
+@# Función de captura de pantalla con numeración consecutiva
+@# Guarda capturas de pantalla de proceso o error con nomenclatura estandarizada
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK CapturaPantalla
+    @# Inicialización de variables de función
+    SET gblObjVariablesGenerales.estadoProcesoFuncion TO "True"
+    SET gblObjVariablesGenerales.estadoSistemaFuncion TO "True"
+    
+    @# Control de errores de función
+    ON BLOCK ERROR
+        SET gblObjVariablesGenerales.estadoProcesoFuncion TO "False"
+        SET gblObjVariablesGenerales.estadoSistemaFuncion TO "False"
+        SET gblObjVariablesGenerales.observacionesFuncion TO "Error en CapturaPantalla: %LastError%"
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ERROR [CapturaPantalla]: %LastError%"
+        EXIT BLOCK
+    END
+    
+    @REGION Cálculo de Consecutivo
+        @# Obtener consecutivo actual o inicializarlo
+        IF NOT DEFINED gblIntConsecutivoCaptura THEN
+            SET gblIntConsecutivoCaptura TO 1
+        ELSE
+            @# Incrementar consecutivo
+            Math.AddNumbers Value1: gblIntConsecutivoCaptura Value2: 1 Result: gblIntConsecutivoCaptura
+            
+            @# Rollover a 1 si excede 9999
+            IF gblIntConsecutivoCaptura > 9999 THEN
+                SET gblIntConsecutivoCaptura TO 1
+            END
+        END
+        
+        @# Formatear consecutivo con 4 dígitos (padding con ceros)
+        Text.PadText Text: gblIntConsecutivoCaptura Length: 4 PaddingCharacter: "0" PaddingType: Text.PaddingType.Left Result: strConsecutivo
+    @ENDREGION
+    
+    @REGION Obtención de Timestamp
+        @# Obtener hora actual en formato HHmmss
+        DateTime.GetCurrentDateTime Result: fechaHoraActual
+        DateTime.FormatDateTime DateTime: fechaHoraActual Format: "HHmmss" Result: strTimestamp
+    @ENDREGION
+    
+    @REGION Construcción de Nombre de Archivo
+        @# Obtener tipo de captura (Proceso o Error)
+        SET tipoCaptura TO gblObjVariablesGenerales.tipoCapturaPantalla
+        
+        @# Construir nombre según tipo
+        IF tipoCaptura = "Error" THEN
+            SET nombreCaptura TO "Error_%strTimestamp%_%strConsecutivo%.png"
+        ELSE
+            SET nombreCaptura TO "Proceso_%strTimestamp%_%strConsecutivo%.png"
+        END
+        
+        @# Construir ruta completa
+        SET rutaCompletaCaptura TO "%gblStrRutaCapturas%\\%nombreCaptura%"
+    @ENDREGION
+    
+    @REGION Toma de Screenshot
+        @# Capturar pantalla completa
+        Desktop.TakeScreenshot FilePath: rutaCompletaCaptura
+        
+        @# Esperar 500ms para asegurar guardado
+        Wait Milliseconds: 500
+        
+        @# Validar que el archivo fue creado
+        IF NOT File.IfFileExists FilePath: rutaCompletaCaptura THEN
+            SET gblObjVariablesGenerales.observacionesFuncion TO "Screenshot no se guardo correctamente"
+            THROW ERROR "Fallo al guardar screenshot"
+        END
+    @ENDREGION
+    
+    @REGION Agregar a Lista de Rutas de Capturas
+        @# Agregar ruta a lista global para adjuntar en correos
+        IF NOT DEFINED gblObjVariablesGenerales.listaRutasCapturasPantalla THEN
+            SET gblObjVariablesGenerales.listaRutasCapturasPantalla TO rutaCompletaCaptura
+        ELSE
+            @# Concatenar con separador de punto y coma
+            SET gblObjVariablesGenerales.listaRutasCapturasPantalla TO "%gblObjVariablesGenerales.listaRutasCapturasPantalla%;%rutaCompletaCaptura%"
+        END
+        
+        @# Trim de espacios iniciales
+        Text.TrimText Text: gblObjVariablesGenerales.listaRutasCapturasPantalla TrimOption: Text.TrimOption.Both Result: gblObjVariablesGenerales.listaRutasCapturasPantalla
+    @ENDREGION
+    
+    @REGION Logs Detallados
+        @# Registrar captura en log de sistema
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [CapturaPantalla]: Captura guardada: %nombreCaptura% (Tipo: %tipoCaptura%)"
+        
+        @# Guardar nombre en variable global
+        SET gblObjVariablesGenerales.nombreImagenCaptura TO nombreCaptura
+    @ENDREGION
+    
+    @# Marcar función como exitosa
+    SET gblObjVariablesGenerales.estadoProcesoFuncion TO "True"
+    SET gblObjVariablesGenerales.observacionesFuncion TO "Captura de pantalla guardada exitosamente"
+    
+END
+@ENDREGION

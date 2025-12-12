@@ -1,0 +1,119 @@
+@REGION [Configuracion]-DepuracionCarpetas
+@# Flujo de limpieza mensual de carpetas antiguas
+@# Elimina carpetas de mes anterior una vez al mes en fecha parametrizada
+@# Autor: Ronald Estiven Rios Hernandez
+@# Fecha: 2025-12-12
+
+@BLOCK DepuracionCarpetas
+    @# Inicialización de variables
+    SET gblObjVariablesGenerales.estadoProceso TO "True"
+    
+    @# Control de errores PCNC (Proceso Controlado No Crítico)
+    ON BLOCK ERROR
+        SET gblObjVariablesGenerales.estadoProceso TO "False"
+        SET gblObjVariablesGenerales.observaciones TO "Advertencia en DepuracionCarpetas: %LastError%"
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "ADVERTENCIA [DepuracionCarpetas]: %LastError%"
+        @# No se detiene el proceso, solo se registra
+        EXIT BLOCK
+    END
+    
+    @REGION Inicialización de Diccionario de Meses
+        @# Crear diccionario para restar 1 mes
+        SET dictMeses TO {"01": {"anterior": "12", "anioAnterior": True}, "02": {"anterior": "01", "anioAnterior": False}, "03": {"anterior": "02", "anioAnterior": False}, "04": {"anterior": "03", "anioAnterior": False}, "05": {"anterior": "04", "anioAnterior": False}, "06": {"anterior": "05", "anioAnterior": False}, "07": {"anterior": "06", "anioAnterior": False}, "08": {"anterior": "07", "anioAnterior": False}, "09": {"anterior": "08", "anioAnterior": False}, "10": {"anterior": "09", "anioAnterior": False}, "11": {"anterior": "10", "anioAnterior": False}, "12": {"anterior": "11", "anioAnterior": False}}
+    @ENDREGION
+    
+    @REGION Captura de Fecha Actual
+        @# Obtener fecha actual
+        DateTime.GetCurrentDateTime Result: fechaActual
+        DateTime.FormatDateTime DateTime: fechaActual Format: "dd" Result: diaActual
+        DateTime.FormatDateTime DateTime: fechaActual Format: "MM" Result: mesActual
+        DateTime.FormatDateTime DateTime: fechaActual Format: "yyyy" Result: anioActual
+        
+        @# Convertir día actual a número entero
+        Text.ConvertTextToNumber Text: diaActual Result: intDiaActual
+    @ENDREGION
+    
+    @REGION Validación de Día de Eliminación
+        @# Obtener día parametrizado de eliminación (ejemplo: 5)
+        SET diaEliminacion TO gblObjConfigMaestro.diaEliminacionCarpetas
+        
+        @# Validar si es el día de eliminación
+        IF intDiaActual < diaEliminacion THEN
+            @# No es el día de eliminación, salir sin error
+            Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [DepuracionCarpetas]: No es dia de eliminacion (actual: %intDiaActual%, parametrizado: %diaEliminacion%)"
+            SET gblObjVariablesGenerales.observaciones TO "No es dia de eliminacion, se omite depuracion"
+            EXIT BLOCK
+        END
+    @ENDREGION
+    
+    @REGION Cálculo de Mes/Año a Eliminar
+        @# Obtener mes anterior
+        SET objMesAnterior TO dictMeses[mesActual]
+        SET mesEliminar TO objMesAnterior.anterior
+        
+        @# Calcular año a eliminar
+        IF objMesAnterior.anioAnterior = True THEN
+            @# Si es enero, el mes anterior es diciembre del año anterior
+            Text.ConvertTextToNumber Text: anioActual Result: intAnioActual
+            Math.SubtractNumbers Value1: intAnioActual Value2: 1 Result: intAnioEliminar
+            Text.ConvertNumberToText Number: intAnioEliminar Result: anioEliminar
+        ELSE
+            SET anioEliminar TO anioActual
+        END
+    @ENDREGION
+    
+    @REGION Construcción de Lista de Carpetas a Eliminar
+        @# Construir ruta base del mes a eliminar
+        SET rutaBaseEliminar TO "%gblObjConfigMaquina.rutaBase%\\%anioEliminar%\\%mesEliminar%"
+        
+        @# Crear lista de carpetas a eliminar (6 rutas)
+        SET listaCarpetasEliminar TO []
+        List.AddItem List: listaCarpetasEliminar Item: "%rutaBaseEliminar%\\Capturas" Result: listaCarpetasEliminar
+        List.AddItem List: listaCarpetasEliminar Item: "%rutaBaseEliminar%\\Logs" Result: listaCarpetasEliminar
+        List.AddItem List: listaCarpetasEliminar Item: "%rutaBaseEliminar%\\Reportes" Result: listaCarpetasEliminar
+        List.AddItem List: listaCarpetasEliminar Item: "%rutaBaseEliminar%\\Temp" Result: listaCarpetasEliminar
+        List.AddItem List: listaCarpetasEliminar Item: "%rutaBaseEliminar%\\Procesados" Result: listaCarpetasEliminar
+        List.AddItem List: listaCarpetasEliminar Item: rutaBaseEliminar Result: listaCarpetasEliminar
+    @ENDREGION
+    
+    @REGION Eliminación de Carpetas
+        @# Registrar inicio de eliminación
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [DepuracionCarpetas]: Iniciando eliminacion de carpetas del mes %mesEliminar%/%anioEliminar%"
+        
+        @# Contador de carpetas eliminadas
+        SET contadorEliminadas TO 0
+        
+        @# Bucle para eliminar cada carpeta
+        FOR EACH carpetaEliminar IN listaCarpetasEliminar
+            @# Validar si la carpeta existe
+            IF Folder.IfFolderExists FolderPath: carpetaEliminar THEN
+                @# Eliminar carpeta recursivamente
+                Folder.DeleteFolder Folder: carpetaEliminar
+                
+                @# Incrementar contador
+                Math.AddNumbers Value1: contadorEliminadas Value2: 1 Result: contadorEliminadas
+                
+                @# Registrar eliminación en log
+                Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [DepuracionCarpetas]: Carpeta eliminada: %carpetaEliminar%"
+            ELSE
+                @# Registrar que no existe
+                Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [DepuracionCarpetas]: Carpeta no existe: %carpetaEliminar%"
+            END
+        END
+    @ENDREGION
+    
+    @REGION Logs Finales
+        @# Registrar resumen en log de sistema
+        Text.AppendLine LogPath: gblStrRutaLogSistema TextToAppend: "INFO [DepuracionCarpetas]: Depuracion completada. Carpetas eliminadas: %contadorEliminadas%"
+        
+        @# Registrar en log de auditoría
+        CALL [Funcion]-FormatearFechaHora
+        Text.AppendLine LogPath: gblStrRutaLogAuditoria TextToAppend: "DEPURACION CARPETAS,%gblObjFormatoFechaHora.fecha%,%gblObjFormatoFechaHora.hora%,Eliminadas %contadorEliminadas% carpetas del mes %mesEliminar%/%anioEliminar%"
+    @ENDREGION
+    
+    @# Marcar depuración como exitosa
+    SET gblObjVariablesGenerales.estadoProceso TO "True"
+    SET gblObjVariablesGenerales.observaciones TO "Depuracion de carpetas completada: %contadorEliminadas% eliminadas"
+    
+END
+@ENDREGION
