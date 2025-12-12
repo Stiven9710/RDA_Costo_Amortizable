@@ -1,0 +1,166 @@
+{
+	"configuracion": {
+		"globales": {
+			"numeroMaquinaBR": "",
+			"nombreAsistente": "CostoAmortizable",
+			"ambiente": "Desarrollo",
+			"numeroIntentosLogin": 2,
+			"numeroIntentosProceso": 2,
+			"usuarioRedBR": "",
+			"nombreEstacionBR": "",
+			"ipMaquina": "",
+			"rutaArchivosTemporales": "",
+			"rutaDescarga": "",
+			"rutaLibreriasPython": "C:\\Python312\\Lib",
+			"aplicacionesCerrar": "|EXCEL.EXE|MSACCESS.EXE",
+			"rutaArchivoHistory": "AppData\\Local\\Google\\Chrome\\User Data\\Default\\History",
+			"tiempoEsperaInterfazMuyBajo": 10,
+			"tiempoEsperaInterfazBajo": 30,
+			"tiempoEsperaInterfazMedio": 60,
+			"tiempoEsperaInterfazAlto": 120,
+			"tiempoEsperaInterfazMuyAlto": 300
+		},
+		"envioNotificaciones": {
+			"correoDesde": "PBUEGAMP01@fgs.co",
+			"correoPara": "ccamposg@fgs.co;jelozanog@fgs.co;rriosh@fgs.co",
+			"correoCC": "",
+			"correoCCO": "",
+			"plantillas": {
+				"exitoso": {
+					"asunto": "✅ RDA Costo Amortizable - Ejecución Exitosa {fecha}",
+					"cuerpoHTML": "<h3>Proceso Finalizado Correctamente</h3><p>El proceso de Costo Amortizable finalizó exitosamente el {fecha} a las {hora}.</p><p><b>Registros procesados:</b> {cantidadRegistros}</p><p><b>Tiempo de ejecución:</b> {tiempoEjecucion} minutos</p>",
+					"adjuntarReporte": "True",
+					"adjuntarCapturas": "False"
+				},
+				"error": {
+					"asunto": "❌ RDA Costo Amortizable - Error en Ejecución {fecha}",
+					"cuerpoHTML": "<h3>Error en el Proceso</h3><p>Se ha presentado un error en el proceso de Costo Amortizable el {fecha} a las {hora}.</p><p><b>Error:</b> {descripcionError}</p><p><b>Flujo afectado:</b> {nombreFlujo}</p><p>Por favor revisar logs y capturas adjuntas.</p>",
+					"adjuntarReporte": "False",
+					"adjuntarCapturas": "True"
+				},
+				"advertencia": {
+					"asunto": "⚠️ RDA Costo Amortizable - Advertencia {fecha}",
+					"cuerpoHTML": "<h3>Proceso Finalizado con Advertencias</h3><p>El proceso finalizó con advertencias el {fecha} a las {hora}.</p><p><b>Advertencias:</b> {descripcionAdvertencia}</p><p><b>Registros procesados:</b> {cantidadRegistros}</p>",
+					"adjuntarReporte": "True",
+					"adjuntarCapturas": "True"
+				}
+			}
+		},
+		"logs": {
+			"nombreLogSistema": "SSSIIIIIII_LOG_DE_SISTEMA_YYYYMMDD.csv",
+			"rutaLogSistema": "",
+			"nombreLogAuditoria": "SSSIIIIIII_LOG_DE_AUDITORIA_YYYYMMDD.csv",
+			"rutaLogAuditoria": "",
+			"nombreLogPython": "SSSIIIIIII_LOG_DE_PYTHON_YYYYMMDD.csv",
+			"rutaLogPython": ""
+		},
+		"depuracion": {
+			"diaEliminacion": "25"
+		},
+		"capturasPantalla": {
+			"consecutivoCapturaPantalla": "0",
+			"cantidadMaximoConsecutivo": "9999",
+			"nombreCapturaPantallaError": "SSSIIIIIII_CAPTURA_ERROR_CONSECUTIVO.png",
+			"rutaCapturasPantallaError": "",
+			"nombreCapturaPantallaProceso": "SSSIIIIIII_CAPTURA_PROCESO_CONSECUTIVO.png",
+			"rutaCapturasPantallaProceso": ""
+		},
+		"reporteGestion": {
+			"nombreReporte": "SSSIIIIIII_INFORMEGESTION_YYYYMMDD.xlsx",
+			"rutaReporteGestion": "",
+			"fechaReporte": ""
+		},
+		"variablesSMTP": {
+			"hostSMTP": "10.1.3.83",
+			"puertoSMTP": "25"
+		},
+		"variablesDB": {
+			"timeOutSegundos": "600"
+		},
+		"conexionesSQL": {
+			"dwh_cc": {
+				"servidor": "10.1.3.101\\SCC",
+				"baseDatos": "DWH_CC",
+				"puerto": "1433",
+				"autenticacion": "Windows",
+				"timeoutConexion": 30,
+				"timeoutComando": 600,
+				"habilitarLinkedServer": "True"
+			},
+			"dwh_riesgos": {
+				"servidor": "10.1.5.172\\RIESGOS",
+				"baseDatos": "DWH_Riesgos_Credito",
+				"puerto": "1433",
+				"autenticacion": "Windows",
+				"timeoutConexion": 30,
+				"timeoutComando": 600,
+				"habilitarLinkedServer": "True"
+			}
+		},
+		"archivosExcel": {
+			"plantillaBase": {
+				"nombre": "PLANTILLA_COSTO_AMORTIZABLE.xlsx",
+				"ubicacionRelativa": "\\Plantillas\\",
+				"hojas": {
+					"reestructurados": "Reestructurados",
+					"reestructuradosIndividual": "Reestructurados_Individual",
+					"modificados": "Modificados",
+					"modificadosIndividual": "Modificados_Individual",
+					"retenciones": "Retenciones",
+					"retencionesIndividual": "Retenciones_Individual",
+					"consolidadaBASE": "BASE"
+				}
+			},
+			"archivoSalida": {
+				"nombre": "BCSCOSTOAMORTIZABLE_REPORTE_YYYYMMDD.xls",
+				"formato": "Excel97-2003",
+				"ubicacionRelativa": "\\Reportes Gestion\\YYYY\\MM\\"
+			},
+			"macrosVBA": {
+				"nombreMacro": "GenerarTablaAmortizacion",
+				"habilitarMacros": "True",
+				"tiempoEjecucionMaxSegundos": 180
+			}
+		},
+		"scriptsPython": {
+			"rutaEjecutablePython": "C:\\Python312\\python.exe",
+			"rutaScripts": "\\Scripts\\Python\\",
+			"timeoutEjecucionSegundos": 300,
+			"scripts": {
+				"calculos_financieros": {
+					"nombre": "calcular_tasas_ponderadas.py",
+					"habilitado": "True",
+					"argumentos": "--modo produccion --log"
+				},
+				"validaciones": {
+					"nombre": "validar_completitud.py",
+					"habilitado": "True",
+					"argumentos": "--log"
+				},
+				"transformaciones": {
+					"nombre": "transformar_fechas.py",
+					"habilitado": "True",
+					"argumentos": ""
+				}
+			}
+		},
+		"puntosControl": {
+			"PC01_extraccionDWH": "True",
+			"PC02_consolidacionExcel": "True",
+			"PC03_cargueTablasTempSQL": "True",
+			"PC04_completitudLinkedServer": "True",
+			"PC05_calculosFinancieros": "True",
+			"PC06_ejecucionMacroVBA": "True",
+			"PC07_cargueProduccion": "True"
+		},
+		"activadoresFlujos": {
+			"fechaEjecucionManual": "",
+			"procesarReestructurados": "True",
+			"procesarModificados": "True",
+			"procesarRetenciones": "True",
+			"ejecutarMacroVBA": "True",
+			"calcularHashSHA256": "True",
+			"enviarNotificaciones": "True"
+		}
+	}
+}

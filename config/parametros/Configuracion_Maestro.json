@@ -1,0 +1,16 @@
+{
+	"configuracion": {
+		"BOA02SRVVCORP": {
+			"numeroMaquina": "BR1",
+			"ipMaquina": "10.1.2.58",
+			"rol": "Principal",
+			"descripcion": "Máquina orquestadora - Producción"
+		},
+		"BOA07DESINTDP17": {
+			"numeroMaquina": "BR2",
+			"ipMaquina": "10.1.2.59",
+			"rol": "Secundaria",
+			"descripcion": "Máquina de desarrollo"
+		}
+	}
+}
